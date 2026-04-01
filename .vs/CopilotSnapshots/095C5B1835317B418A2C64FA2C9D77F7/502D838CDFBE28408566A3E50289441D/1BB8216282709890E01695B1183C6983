@@ -1,0 +1,14 @@
+﻿namespace KitchenAidAI.Models
+{
+    public class KorakRecepta
+    {
+        private int _redniBroj;
+        private int _opis;
+        private double _trajanje;
+        public int redniBroj { get; set; }
+        public string? opis { get; set; }
+        public double trajanje { get; set; }
+
+        public KorakRecepta() { }
+    }
+}

@@ -1,0 +1,19 @@
+﻿{
+  "hooks": {
+  "UserPromptSubmit": [
+    {
+      "type": "command",
+      "command": "powershell.exe -NoProfile -Command \"$input | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+    }
+  ],
+
+  "preToolUse": [
+    {
+      "type": "command",
+      "command": "powershell.exe -NoProfile -Command \"$input | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+    }
+  ]
+}
+
+
+}

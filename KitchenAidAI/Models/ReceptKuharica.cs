@@ -1,0 +1,12 @@
+﻿namespace KitchenAidAI.Models
+{
+    public class ReceptKuharica
+    {
+        public int id { get; set; }
+        public int receptId { get; set; }
+        public Recept? recept { get; set; }
+
+        public int kuharicaId { get; set; }
+        public Kuharica? kuharica { get; set; }
+    }
+}

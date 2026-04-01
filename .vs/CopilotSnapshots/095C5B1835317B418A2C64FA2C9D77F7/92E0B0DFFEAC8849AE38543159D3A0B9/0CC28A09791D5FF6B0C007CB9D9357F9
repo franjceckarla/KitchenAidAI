@@ -1,0 +1,30 @@
+﻿using Microsoft.AspNetCore.Routing.Constraints;
+
+namespace KitchenAidAI.Models
+{
+    public class NutritivnaVrijednost
+    {
+        private double _kalorije;
+        private double _proteini;
+        private double _ugljikohidrati;
+        private double _masti;
+        private double _vlakna;
+        private double _sol;
+        public double kalorije { get; set; }
+        public double proteini { get; set; }
+        public double ugljikohidrati { get; set; }
+        public double masti { get; set; }
+        public  double vlakna { get; set; }
+        public double sol { get; set; }
+
+        public NutritivnaVrijednost()
+        {
+            kalorije = 0;
+            proteini = 0;
+            ugljikohidrati = 0;
+            masti = 0;
+            vlakna = 0;
+            sol = 0;
+        }
+    }
+}

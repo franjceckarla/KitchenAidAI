@@ -1,0 +1,52 @@
+﻿@echo off
+REM ===================================
+REM KitchenAidAI Chat Logger Starter
+REM Windows Batch Script
+REM ===================================
+
+setlocal enabledelayedexpansion
+
+cls
+
+echo.
+echo ============================================================
+echo   KITCHENAIDAI - CHAT LOGGER SA AI AGENTOM
+echo ============================================================
+echo.
+
+REM Path do PowerShell skripte
+set SCRIPT_PATH=C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\StartChatSession.ps1
+
+REM Provjeri da li PowerShell skript postoji
+if not exist "%SCRIPT_PATH%" (
+    echo [ERROR] PowerShell skript nije pronađen na:
+    echo %SCRIPT_PATH%
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [INFO] Pokrenuta PowerShell skriptu...
+echo [PATH] %SCRIPT_PATH%
+echo.
+
+REM Pokreni PowerShell skriptu sa Bypass execution policy
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_PATH%"
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Greška pri pokretanju skripte!
+    echo Error Code: %errorlevel%
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo ============================================================
+echo   CHAT SESIJA ZAVRŠENA
+echo ============================================================
+echo.
+
+pause
+
+endlocal

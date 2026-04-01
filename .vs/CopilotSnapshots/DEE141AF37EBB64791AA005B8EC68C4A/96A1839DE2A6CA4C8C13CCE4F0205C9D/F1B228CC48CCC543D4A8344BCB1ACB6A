@@ -1,0 +1,171 @@
+﻿using System;
+using System.IO;
+using System.Diagnostics;
+using System.Text.Json;
+
+namespace KitchenAidAI.Services
+{
+    /// <summary>
+    /// Service za logiranje chat poruka i odgovora agenta
+    /// </summary>
+    public class ChatLogger
+    {
+        private readonly string _logDirectory;
+        private readonly ILogger<ChatLogger> _logger;
+
+        public ChatLogger(ILogger<ChatLogger> logger)
+        {
+            _logger = logger;
+            _logDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs", "Chat");
+            
+            // Kreiraj direktorij ako ne postoji
+            if (!Directory.Exists(_logDirectory))
+            {
+                Directory.CreateDirectory(_logDirectory);
+            }
+        }
+
+        /// <summary>
+        /// Logira chat poruku i odgovor agenta
+        /// </summary>
+        public void LogChatMessage(int userId, string userMessage, string agentResponse, string? messageType = null)
+        {
+            try
+            {
+                var timestamp = DateTime.Now;
+                var logEntry = new
+                {
+                    timestamp = timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    userId = userId,
+                    userMessage = userMessage,
+                    agentResponse = agentResponse,
+                    messageType = messageType ?? "Standard",
+                    sessionId = GetSessionId()
+                };
+
+                // Logiranje u JSON datoteku
+                LogToJson(logEntry, timestamp);
+
+                // Logiranje u CSV datoteku
+                LogToCsv(logEntry, timestamp);
+
+                // Pozovi PowerShell skriptu za dodatno logiranje
+                InvokePowerShellLogger(logEntry);
+
+                _logger.LogInformation("Chat poruka logirana - User ID: {userId}", userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri logiranju chat poruke");
+            }
+        }
+
+        private void LogToJson(object logEntry, DateTime timestamp)
+        {
+            var jsonFileName = Path.Combine(_logDirectory, $"chat-log-{timestamp:yyyy-MM-dd}.json");
+            
+            try
+            {
+                var json = JsonSerializer.Serialize(logEntry, new JsonSerializerOptions { WriteIndented = true });
+                
+                if (File.Exists(jsonFileName))
+                {
+                    // Append na postojeću datoteku
+                    var existingContent = File.ReadAllText(jsonFileName);
+                    if (existingContent.EndsWith("]"))
+                    {
+                        existingContent = existingContent.Substring(0, existingContent.Length - 1) + ",\n";
+                    }
+                    File.WriteAllText(jsonFileName, existingContent + json + "\n]");
+                }
+                else
+                {
+                    // Kreiraj novu datoteku
+                    File.WriteAllText(jsonFileName, "[\n" + json + "\n]");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri pisanju JSON loga");
+            }
+        }
+
+        private void LogToCsv(object logEntry, DateTime timestamp)
+        {
+            var csvFileName = Path.Combine(_logDirectory, $"chat-log-{timestamp:yyyy-MM-dd}.csv");
+            
+            try
+            {
+                var entry = logEntry.GetType();
+                var timestamp_val = entry.GetProperty("timestamp").GetValue(logEntry);
+                var userId = entry.GetProperty("userId").GetValue(logEntry);
+                var userMessage = entry.GetProperty("userMessage").GetValue(logEntry);
+                var agentResponse = entry.GetProperty("agentResponse").GetValue(logEntry);
+                var messageType = entry.GetProperty("messageType").GetValue(logEntry);
+
+                var csvLine = $"\"{timestamp_val}\",{userId},\"{EscapeCsv(userMessage?.ToString() ?? "")}\",\"{EscapeCsv(agentResponse?.ToString() ?? "")}\",\"{messageType}\"\n";
+
+                if (!File.Exists(csvFileName))
+                {
+                    // Kreiraj header
+                    File.WriteAllText(csvFileName, "Timestamp,UserId,UserMessage,AgentResponse,MessageType\n");
+                }
+
+                File.AppendAllText(csvFileName, csvLine);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri pisanju CSV loga");
+            }
+        }
+
+        private void InvokePowerShellLogger(object logEntry)
+        {
+            try
+            {
+                var psScriptPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "LogChat.ps1");
+                
+                if (!File.Exists(psScriptPath))
+                {
+                    _logger.LogWarning("PowerShell skript {path} ne postoji", psScriptPath);
+                    return;
+                }
+
+                var jsonPayload = JsonSerializer.Serialize(logEntry).Replace("\"", "\\\"");
+                
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{psScriptPath}\" -LogData '{jsonPayload}'",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(startInfo))
+                {
+                    if (process != null)
+                    {
+                        process.WaitForExit(5000); // Čekaj max 5 sekundi
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri pozivu PowerShell loggera");
+            }
+        }
+
+        private string EscapeCsv(string input)
+        {
+            return input.Replace("\"", "\"\"").Replace("\n", "\\n").Replace("\r", "\\r");
+        }
+
+        private string GetSessionId()
+        {
+            // Možeš koristiti HttpContext.Session.Id ako je dostupan
+            return Guid.NewGuid().ToString("N").Substring(0, 8);
+        }
+    }
+}

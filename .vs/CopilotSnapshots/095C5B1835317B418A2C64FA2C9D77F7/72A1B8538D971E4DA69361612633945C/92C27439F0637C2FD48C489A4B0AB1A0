@@ -1,0 +1,27 @@
+﻿param(
+    [string]$Message = "",
+    [string]$Type = "INFO",
+    [string]$LogPath = "C:\Users\User\Desktop\.NET\KitchenAidAI\chatLog\lab1Chat.txt"
+)
+
+# Kreiraj direktorij ako ne postoji
+$LogDir = Split-Path -Path $LogPath -Parent
+if (-not (Test-Path -Path $LogDir)) {
+    New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
+}
+
+# Formatiranje poruke
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+# Kreiraj log entry
+if ([string]::IsNullOrWhiteSpace($Message)) {
+    $logEntry = "[$timestamp] [$Type]"
+} else {
+    $logEntry = "[$timestamp] [$Type] $Message"
+}
+
+# Dodaj u log fajl
+Add-Content -Path $LogPath -Value $logEntry -Encoding UTF8
+
+# Prikazi u konzoli
+Write-Host "✓ [$timestamp] Logged to: $LogPath" -ForegroundColor Green

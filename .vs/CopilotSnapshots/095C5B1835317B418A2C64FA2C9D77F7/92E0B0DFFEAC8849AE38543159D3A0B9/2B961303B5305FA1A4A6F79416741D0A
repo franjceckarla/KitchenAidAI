@@ -1,0 +1,22 @@
+﻿{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.ps1\" -Message \"$input\" -Type \"USER\""
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.ps1\" -Message \"$input\" -Type \"TOOL_USED\""
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.ps1\" -Message \"$input\" -Type \"TOOL_RESULT\""
+      }
+    ]
+  }
+}

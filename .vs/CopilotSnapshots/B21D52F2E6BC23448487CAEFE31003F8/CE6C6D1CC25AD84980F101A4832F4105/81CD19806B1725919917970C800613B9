@@ -1,0 +1,393 @@
+﻿using KitchenAidAI.Models;
+using KitchenAidAI.Models.Enums;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// ==================== TEST PODACI ====================
+
+// 1. KREIRAJ KUHARICE
+var kuharica1 = new Kuharica 
+{ 
+    id = 1, 
+    naziv = "Maria Horvat",
+    receptKuharice = new List<ReceptKuharica>()
+};
+
+var kuharica2 = new Kuharica 
+{ 
+    id = 2, 
+    naziv = "Petra Marković",
+    receptKuharice = new List<ReceptKuharica>()
+};
+
+var kuharica3 = new Kuharica 
+{ 
+    id = 3, 
+    naziv = "Ana Blagajac",
+    receptKuharice = new List<ReceptKuharica>()
+};
+
+// 2. KREIRAJ RECEPTE
+var recept1 = new Recept
+{
+    id = 1,
+    naziv = "Torta od čokolada",
+    opis = "Klasična belgijska torta",
+    vrijemeKuhanja = 120,
+    tezina = TezinaRecepta.Srednje,
+    brojPorcija = 8,
+    koraci = new List<KorakRecepta>(),
+    receptKuharice = new List<ReceptKuharica>()
+};
+
+var recept2 = new Recept
+{
+    id = 2,
+    naziv = "Pasta Carbonara",
+    opis = "Talijanska pasta",
+    vrijemeKuhanja = 30,
+    tezina = TezinaRecepta.Lako,
+    brojPorcija = 4,
+    koraci = new List<KorakRecepta>(),
+    receptKuharice = new List<ReceptKuharica>()
+};
+
+var recept3 = new Recept
+{
+    id = 3,
+    naziv = "Risotto sa gljivama",
+    opis = "Italijanski risotto",
+    vrijemeKuhanja = 45,
+    tezina = TezinaRecepta.Srednje,
+    brojPorcija = 6,
+    koraci = new List<KorakRecepta>(),
+    receptKuharice = new List<ReceptKuharica>()
+};
+
+// 3. KREIRAJ KORAKE RECEPTA
+var korak1_1 = new KorakRecepta
+{
+    id = 1,
+    receptId = 1,
+    redniBroj = 1,
+    opis = "Rastopi čokoladu na bain-marii",
+    trajanje = 10
+};
+
+var korak1_2 = new KorakRecepta
+{
+    id = 2,
+    receptId = 1,
+    redniBroj = 2,
+    opis = "Pjeni jaja sa šećerom",
+    trajanje = 15
+};
+
+var korak2_1 = new KorakRecepta
+{
+    id = 3,
+    receptId = 2,
+    redniBroj = 1,
+    opis = "Kuhaj tjesteninu",
+    trajanje = 10
+};
+
+recept1.koraci = new List<KorakRecepta> { korak1_1, korak1_2 };
+recept2.koraci = new List<KorakRecepta> { korak2_1 };
+
+// 4. KREIRAJ N:N VEZU - ReceptKuharica
+var receptKuharica1 = new ReceptKuharica
+{
+    id = 1,
+    receptId = 1,
+    kuharicaId = 1,
+    recept = recept1,
+    kuharica = kuharica1
+};
+
+var receptKuharica2 = new ReceptKuharica
+{
+    id = 2,
+    receptId = 2,
+    kuharicaId = 1,
+    recept = recept2,
+    kuharica = kuharica1
+};
+
+var receptKuharica3 = new ReceptKuharica
+{
+    id = 3,
+    receptId = 3,
+    kuharicaId = 2,
+    recept = recept3,
+    kuharica = kuharica2
+};
+
+kuharica1.receptKuharice = new List<ReceptKuharica> { receptKuharica1, receptKuharica2 };
+kuharica2.receptKuharice = new List<ReceptKuharica> { receptKuharica3 };
+
+recept1.receptKuharice = new List<ReceptKuharica> { receptKuharica1 };
+recept2.receptKuharice = new List<ReceptKuharica> { receptKuharica2 };
+recept3.receptKuharice = new List<ReceptKuharica> { receptKuharica3 };
+
+// 5. KREIRAJ NAMIRNICE SA NUTRITIVNOM VRIJEDNOSTI
+var nutritivnaVrijednost1 = new NutritivnaVrijednost
+{
+    kalorije = 537,
+    proteini = 8,
+    ugljikohidrati = 52,
+    masti = 32,
+    vlakna = 3,
+    sol = 0.5
+};
+
+var nutritivnaVrijednost2 = new NutritivnaVrijednost
+{
+    kalorije = 131,
+    proteini = 13,
+    ugljikohidrati = 0,
+    masti = 8,
+    vlakna = 0,
+    sol = 0.1
+};
+
+var frizider1 = new Frizider { id = 1, namirnice = new List<Namirnica>() };
+var frizider2 = new Frizider { id = 2, namirnice = new List<Namirnica>() };
+
+var namirnica1 = new Namirnica
+{
+    id = 1,
+    naziv = "Čokolada",
+    kategorija = KategorijaNamirnice.DESERT,
+    mjera = Mjera.GRAM,
+    kolicinaUFrizideru = 200,
+    friziderId = 1,
+    frizider = frizider1,
+    nutritivnaVrijednost = nutritivnaVrijednost1
+};
+
+var namirnica2 = new Namirnica
+{
+    id = 2,
+    naziv = "Jaja",
+    kategorija = KategorijaNamirnice.PROTEINI,
+    mjera = Mjera.KOMADA,
+    kolicinaUFrizideru = 12,
+    friziderId = 1,
+    frizider = frizider1,
+    nutritivnaVrijednost = nutritivnaVrijednost2
+};
+
+var namirnica3 = new Namirnica
+{
+    id = 3,
+    naziv = "Tjestenina",
+    kategorija = KategorijaNamirnice.UGLJIKOHIDRATI,
+    mjera = Mjera.GRAM,
+    kolicinaUFrizideru = 500,
+    friziderId = 2,
+    frizider = frizider2
+};
+
+frizider1.namirnice = new List<Namirnica> { namirnica1, namirnica2 };
+frizider2.namirnice = new List<Namirnica> { namirnica3 };
+
+// 6. KREIRAJ KORISNIKE
+var user1 = new User
+{
+    id = 1,
+    username = "marko92",
+    email = "marko@example.com",
+    preferencijaPrehrane = PreferencijaPrehrane.NORMALNA,
+    kuharicaId = 1,
+    kuharica = kuharica1,
+    frizider = frizider1,
+    chatPoruke = new List<ChatMessage>()
+};
+
+var user2 = new User
+{
+    id = 2,
+    username = "petra_love",
+    email = "petra@example.com",
+    preferencijaPrehrane = PreferencijaPrehrane.VEGETARIJANSKA,
+    kuharicaId = 2,
+    kuharica = kuharica2,
+    frizider = frizider2,
+    chatPoruke = new List<ChatMessage>()
+};
+
+var user3 = new User
+{
+    id = 3,
+    username = "ana_fit",
+    email = "ana@example.com",
+    preferencijaPrehrane = PreferencijaPrehrane.VEGANSKA,
+    kuharicaId = 3,
+    kuharica = kuharica3,
+    frizider = new Frizider { id = 3, namirnice = new List<Namirnica>() },
+    chatPoruke = new List<ChatMessage>()
+};
+
+// 7. KREIRAJ CHAT PORUKE
+var chatMessage1 = new ChatMessage
+{
+    id = 1,
+    userId = 1,
+    user = user1,
+    message = "Koji je najbolji recept za čokoladu?",
+    response = "Preporučujem našu klasičnu tortu od čokolada!",
+    tip = TipOdgovora.USER
+};
+
+var chatMessage2 = new ChatMessage
+{
+    id = 2,
+    userId = 1,
+    user = user1,
+    message = "Trebam vegetarijansku opciju",
+    response = "Imamo risotto sa gljivama - odličan izbor!",
+    tip = TipOdgovora.AGENT
+};
+
+var chatMessage3 = new ChatMessage
+{
+    id = 3,
+    userId = 2,
+    user = user2,
+    message = "Koji su svi recepti?",
+    response = "Evo svih dostupnih recepti...",
+    tip = TipOdgovora.USER
+};
+
+user1.chatPoruke = new List<ChatMessage> { chatMessage1, chatMessage2 };
+user2.chatPoruke = new List<ChatMessage> { chatMessage3 };
+
+// ==================== ZBIRKA PODATAKA ====================
+var korisnici = new List<User> { user1, user2, user3 };
+var recepti = new List<Recept> { recept1, recept2, recept3 };
+var kuharice = new List<Kuharica> { kuharica1, kuharica2, kuharica3 };
+var namirnice = new List<Namirnica> { namirnica1, namirnica2, namirnica3 };
+var chatPoruke = new List<ChatMessage> { chatMessage1, chatMessage2, chatMessage3 };
+
+// ==================== LINQ UPITI ====================
+Console.WriteLine("====== LINQ UPITI ======\n");
+
+// Upit 1: Svi korisnici i njihove preference
+Console.WriteLine("1. Korisnici i njihove preference:");
+System.IO.File.AppendAllText(logPath, "1. Korisnici i njihove preference:\n");
+var userPreferences = korisnici.Select(u => new { u.username, u.preferencijaPrehrane }).ToList();
+foreach (var up in userPreferences)
+{
+    string output = $"   - {up.username}: {up.preferencijaPrehrane}";
+    Console.WriteLine(output);
+    System.IO.File.AppendAllText(logPath, output + "\n");
+}
+
+// Upit 2: Recepti sortiran po vremenu kuhanja
+Console.WriteLine("\n2. Recepti sortirani po vremenu kuhanja:");
+var receptiByTime = recepti.OrderBy(r => r.vrijemeKuhanja).ToList();
+foreach (var r in receptiByTime)
+{
+    Console.WriteLine($"   - {r.naziv}: {r.vrijemeKuhanja} min ({r.tezina})");
+}
+
+// Upit 3: Sve namirnice iz frizdera korisnika 1
+Console.WriteLine("\n3. Namirnice u frizideru korisnika 1 (Marko):");
+var markoNamirnice = namirnice.Where(n => n.friziderId == user1.frizider?.id).ToList();
+foreach (var n in markoNamirnice)
+{
+    Console.WriteLine($"   - {n.naziv}: {n.kolicinaUFrizideru} {n.mjera}");
+}
+
+// Upit 4: Recepti sa srednjom ili većom težinom
+Console.WriteLine("\n4. Recepti sa SREDNJA ili TESKA težina:");
+System.IO.File.AppendAllText(logPath, "\n4. Recepti sa SREDNJA ili TESKA težina:\n");
+var tezakiRecepti = recepti.Where(r => r.tezina >= TezinaRecepta.Srednje).ToList();
+foreach (var r in tezakiRecepti)
+{
+    string output = $"   - {r.naziv} ({r.tezina})";
+    Console.WriteLine(output);
+    System.IO.File.AppendAllText(logPath, output + "\n");
+}
+
+// Upit 5: Chat poruke po korisniku
+Console.WriteLine("\n5. Chat poruke po korisniku:");
+System.IO.File.AppendAllText(logPath, "\n5. Chat poruke po korisniku:\n");
+var chatByUser = chatPoruke.GroupBy(c => c.user?.username)
+    .Select(g => new { Korisnik = g.Key, BrojPoruka = g.Count() }).ToList();
+foreach (var cb in chatByUser)
+{
+    string output = $"   - {cb.Korisnik}: {cb.BrojPoruka} poruka";
+    Console.WriteLine(output);
+    System.IO.File.AppendAllText(logPath, output + "\n");
+}
+
+// Upit 6: Prosječno vrijeme kuhanja
+Console.WriteLine("\n6. Prosječno vrijeme kuhanja:");
+System.IO.File.AppendAllText(logPath, "\n6. Prosječno vrijeme kuhanja:\n");
+var prosecnoVrijeme = recepti.Average(r => r.vrijemeKuhanja);
+string prosecnoOutput = $"   - {prosecnoVrijeme:F1} minuta";
+Console.WriteLine(prosecnoOutput);
+System.IO.File.AppendAllText(logPath, prosecnoOutput + "\n");
+
+// Upit 7: Recepti sa više od 3 koraka
+Console.WriteLine("\n7. Recepti sa više od 3 koraka:");
+System.IO.File.AppendAllText(logPath, "\n7. Recepti sa više od 3 koraka:\n");
+var receptiSaViseKoraka = recepti.Where(r => r.koraci?.Count > 3).ToList();
+if (receptiSaViseKoraka.Count == 0)
+{
+    string noOutput = "   - Nema recepti sa više od 3 koraka";
+    Console.WriteLine(noOutput);
+    System.IO.File.AppendAllText(logPath, noOutput + "\n");
+}
+
+// Upit 8: Kuharice sa najviše recepti
+Console.WriteLine("\n8. Kuharice sa njihovim brojem recepti:");
+System.IO.File.AppendAllText(logPath, "\n8. Kuharice sa njihovim brojem recepti:\n");
+var kuhariceStats = kuharice.Select(k => new 
+{ 
+    Naziv = k.naziv, 
+    BrojRecepata = k.receptKuharice?.Count ?? 0 
+}).OrderByDescending(k => k.BrojRecepata).ToList();
+foreach (var ks in kuhariceStats)
+{
+    string output = $"   - {ks.Naziv}: {ks.BrojRecepata} recepti";
+    Console.WriteLine(output);
+    System.IO.File.AppendAllText(logPath, output + "\n");
+}
+
+// Loguj završetak sesije
+string sessionEnd = $"\n╔════════════════════════════════════════════════════════════════╗\n" +
+    $"          LABORATORIJSKA VJEŽBA 1 - ZAVRŠENA\n" +
+    $"          Vrijeme završetka: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n" +
+    $"╚════════════════════════════════════════════════════════════════╝\n";
+
+System.IO.File.AppendAllText(logPath, sessionEnd);
+
+Console.WriteLine($"\n✅ Log datoteka je spremljena u: {logPath}");
+
+app.Run();

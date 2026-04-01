@@ -1,0 +1,74 @@
+﻿param(
+    [string]$LogData
+)
+
+# Konfiguracija
+$logsDirectory = Join-Path (Get-Location) "Logs" "Chat" "PowerShell"
+$archiveDirectory = Join-Path $logsDirectory "Archive"
+$logFileName = "chat-log-$(Get-Date -Format 'yyyy-MM-dd').log"
+$logFilePath = Join-Path $logsDirectory $logFileName
+
+# Kreiraj direktorije ako ne postoje
+if (-not (Test-Path $logsDirectory)) {
+    New-Item -ItemType Directory -Path $logsDirectory -Force | Out-Null
+}
+
+if (-not (Test-Path $archiveDirectory)) {
+    New-Item -ItemType Directory -Path $archiveDirectory -Force | Out-Null
+}
+
+# Konvertuj JSON string u objekat
+try {
+    $logEntry = $LogData | ConvertFrom-Json
+} catch {
+    $logEntry = @{
+        timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff'
+        error = "Greška pri parsiranju JSON podataka"
+        rawData = $LogData
+    }
+}
+
+# Kreiraj log poruku
+$logMessage = @"
+[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff')] ========================================
+Timestamp: $($logEntry.timestamp)
+User ID: $($logEntry.userId)
+Message Type: $($logEntry.messageType)
+Session ID: $($logEntry.sessionId)
+----------------------------------------
+USER MESSAGE:
+$($logEntry.userMessage)
+----------------------------------------
+AGENT RESPONSE:
+$($logEntry.agentResponse)
+========================================
+"@
+
+# Napiši u log datoteku
+Add-Content -Path $logFilePath -Value $logMessage -Encoding UTF8
+
+# Kreiraj JSON backup
+$jsonBackupPath = Join-Path $logsDirectory "$(Get-Date -Format 'yyyy-MM-dd')-messages.jsonl"
+$logEntry | ConvertTo-Json -Compress | Add-Content -Path $jsonBackupPath -Encoding UTF8
+
+# Cleanup - arhiviraj datoteke starije od 30 dana
+Get-ChildItem -Path $logsDirectory -Filter "*.log" -File | Where-Object {
+    $_.CreationTime -lt (Get-Date).AddDays(-30)
+} | Move-Item -Destination $archiveDirectory -Force
+
+# Opciono: Kompresiraj arhivirane datoteke starije od 90 dana
+Get-ChildItem -Path $archiveDirectory -Filter "*.log" -File | Where-Object {
+    $_.CreationTime -lt (Get-Date).AddDays(-90) -and $_.Extension -ne ".gz"
+} | ForEach-Object {
+    try {
+        Compress-Archive -Path $_.FullName -DestinationPath "$($_.FullName).zip" -Force
+        Remove-Item -Path $_.FullName -Force
+    } catch {
+        # Ignoriraj greške pri kompresiji
+    }
+}
+
+# Ispis u console za debug (opciono)
+# Write-Host "Chat poruka logirana: $($logEntry.timestamp)"
+
+exit 0

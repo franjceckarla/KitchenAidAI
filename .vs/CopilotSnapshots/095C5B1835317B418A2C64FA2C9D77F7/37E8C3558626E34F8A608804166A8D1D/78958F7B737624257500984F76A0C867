@@ -1,0 +1,22 @@
+﻿{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -Command \"Write-Host 'Chat started'; Get-Date | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -Command \"Write-Host 'Tool used'; Get-Date | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -Command \"Write-Host 'Tool completed'; Get-Date | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+      }
+    ]
+  }
+}

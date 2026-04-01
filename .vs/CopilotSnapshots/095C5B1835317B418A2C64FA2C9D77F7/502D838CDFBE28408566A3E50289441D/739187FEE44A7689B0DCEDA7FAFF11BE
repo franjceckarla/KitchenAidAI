@@ -1,0 +1,28 @@
+﻿using KitchenAidAI.Models.Enums;
+
+namespace KitchenAidAI.Models
+{
+    public class User
+    {
+        private int? _id;
+        private string? _username;
+        private string? _email;
+        private DateTime? _kreirano;
+        private Frizider? _frizider;
+        private PreferencijaPrehrane? _preferencijaPrehrane;
+        private int? _kuharicaId;
+        private Kuharica? _kuharica;
+
+        public int id { get; set; }
+        public string? username { get; set; }
+        public string? email { get; set; }
+        public DateTime kreirano { get; set; }
+        public Frizider? frizider { get; set; }
+        public PreferencijaPrehrane? preferencijaPrehrane { get; set; }
+        public int kuharicaId { get; set; }
+        public Kuharica? kuharica { get; set; }
+        public List<ChatMessage>? chatPoruke { get; set; }
+
+        public User() { kreirano = DateTime.Now; }
+    }
+}

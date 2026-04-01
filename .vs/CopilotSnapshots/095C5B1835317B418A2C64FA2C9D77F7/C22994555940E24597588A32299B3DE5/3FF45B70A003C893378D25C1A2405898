@@ -1,0 +1,19 @@
+﻿{
+  "hooks": {
+  "UserPromptSubmit": [
+    {
+      "type": "command",
+      "command": "cmd /c more >>\"C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt\""
+    }
+  ],
+
+  "preToolUse": [
+    {
+      "type": "command",
+      "command": "cmd /c more >>\"C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+    }
+  ]
+}
+
+
+}

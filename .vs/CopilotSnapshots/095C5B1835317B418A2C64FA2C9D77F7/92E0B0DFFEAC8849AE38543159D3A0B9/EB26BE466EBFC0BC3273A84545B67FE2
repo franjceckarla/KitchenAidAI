@@ -1,0 +1,15 @@
+﻿namespace KitchenAidAI.Models
+{
+    public class Frizider
+    {
+
+        private List<Namirnica>? _namirnice;
+        private DateTime _azurirano;
+        public List<Namirnica>? namirnice { get; set; }
+        public DateTime azurirano { get; set; }
+        public Frizider() {
+            azurirano = DateTime.Now;
+
+        }
+    }
+}

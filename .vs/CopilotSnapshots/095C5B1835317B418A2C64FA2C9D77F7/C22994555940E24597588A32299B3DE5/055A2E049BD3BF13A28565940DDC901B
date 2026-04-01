@@ -1,0 +1,21 @@
+﻿using KitchenAidAI.Models.Enums;
+
+namespace KitchenAidAI.Models
+{
+    public class Namirnica
+    {
+        private int _id;
+        private string _name;
+        private KategorijaNamirnice _kategorija;
+        private NutritivnaVrijednost _nutritivnaVrijednost;
+        private Mjera _mjera;
+        private double _kolicinaUFrizideru;
+        public int id { get; set; }
+        public string? naziv { get; set; }
+        public KategorijaNamirnice kategorija { get; set; }
+        public NutritivnaVrijednost? nutritivnaVrijednost { get; set; }
+        public Mjera mjera { get; set; }
+        public double kolicinaUFrizideru { get; set; }
+        public Namirnica() { }
+    }
+}

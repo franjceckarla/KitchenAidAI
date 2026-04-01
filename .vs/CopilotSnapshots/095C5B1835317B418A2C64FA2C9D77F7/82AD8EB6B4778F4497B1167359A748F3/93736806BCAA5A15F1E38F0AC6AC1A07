@@ -1,0 +1,102 @@
+﻿# 🍳 KitchenAidAI Chat Logger
+
+Skripte za logiranje chat sesija sa AI agentom.
+
+## 📁 Fajlovi
+
+1. **ChatLogger.ps1** - Osnovna PowerShell skriptu za logiranje
+2. **StartChatSession.ps1** - Glavna interaktivna chat skriptu
+3. **StartChatSession.bat** - Windows batch pokretač
+
+## 🚀 Kako koristiti
+
+### Opcija 1: Direktno iz PowerShell-a
+```powershell
+# Otvori PowerShell u ovom direktoriju
+cd "C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks"
+
+# Pokreni skriptu
+powershell -ExecutionPolicy Bypass -File "StartChatSession.ps1"
+```
+
+### Opcija 2: Koristi .bat fajl (Najjednostavnije)
+```
+1. Dupli-klik na: StartChatSession.bat
+2. Počni sa chat-om!
+```
+
+### Opcija 3: Iz Command Prompt-a
+```cmd
+C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\StartChatSession.bat
+```
+
+## 📝 Gdje se logira
+
+Sve poruke su spremane u:
+```
+C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\logChat.txt
+```
+
+## 💬 Kako funkcionira
+
+1. **Upiši pitanje** - Svi tvoji prompt-i se logiraju kao `[USER]`
+2. **Čekaj odgovor** - Odgovori se logiraju kao `[AI_AGENT]`
+3. **Nastavite razgovor** - Može biti beskonačno mnogo poruka
+4. **Izlaz** - Upiši "exit" ili "quit" za izlaz
+
+## 📊 Format Log-a
+
+```
+[2026-03-27 11:20:15] [USER]
+Koji je najbolji recept za čokoladu?
+================================================================================
+
+[2026-03-27 11:20:20] [AI_AGENT]
+To je odličnog pitanja! Trebam da razmislim o tome...
+================================================================================
+```
+
+## ⚙️ Konfiguracija
+
+Ako trebas da promijeniš putanju log-a, uredi `StartChatSession.ps1`:
+
+```powershell
+# Pronađi liniju:
+$LogPath = "C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\logChat.txt"
+
+# I zamijeni sa tvojom putanjom
+```
+
+## 🔧 Troubleshooting
+
+### PowerShell Execution Policy Greška
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
+```
+
+### Fajl Permissions Greška
+Desni klik na `.bat` fajl → Pokreni kao Administrator
+
+### Putanja ne postoji
+Izmijeni putanje u skriptama da odgovara tvojoj lokaciji
+
+## 📌 Napomene
+
+- Log fajl se automatski kreira ako ne postoji
+- Sesija se logira sa timestamp-om
+- Broj poruka se broji i logira na kraju sesije
+- Možeš otvoriti log fajl direktno iz skripte nakon što je završiš
+
+## 🎯 Primjena
+
+Odličnog za:
+- ✅ Dokumentovanje chat-a sa AI agentom
+- ✅ Praćenje pitanja i odgovora
+- ✅ Analiza rezultata
+- ✅ Učenje iz prethodnih sesija
+
+---
+
+**Verzija:** 1.0  
+**Projekt:** KitchenAidAI  
+**Zadnja izmjena:** 2026-03-27

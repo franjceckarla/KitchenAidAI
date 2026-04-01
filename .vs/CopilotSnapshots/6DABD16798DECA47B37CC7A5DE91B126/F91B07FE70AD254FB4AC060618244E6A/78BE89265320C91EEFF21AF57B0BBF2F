@@ -1,0 +1,20 @@
+﻿{
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": false
+  },
+  "github.copilot.chat.locusSettings": {
+    "enabled": true
+  },
+  "[plaintext]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.exclude": {
+    "**/.git": true
+  },
+  "extensions.recommendations": [
+    "GitHub.copilot",
+    "GitHub.copilot-chat"
+  ]
+}

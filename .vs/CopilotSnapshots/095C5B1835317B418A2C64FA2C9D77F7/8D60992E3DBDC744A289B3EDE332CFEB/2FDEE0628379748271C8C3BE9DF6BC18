@@ -1,0 +1,24 @@
+﻿using KitchenAidAI.Models.Enums;
+
+namespace KitchenAidAI.Models
+{
+    public class ChatMessage
+    {
+        private int _id;
+        private int _userId;
+        private User _user;
+        private string _message;
+        private string _response;
+        private DateTime _datumKreiranja;
+        private TipOdgovra _tip;
+        public int id { get; set; }
+        public int userId { get; set; }
+        public User? user { get; set; }
+        public string? message { get; set; }
+        public string? response { get; set; }
+        public DateTime datumKreiranja { get; set; }
+        public TipOdgovra tip { get; set; }
+        
+        public ChatMessage() { datumKreiranja = DateTime.Now; }
+    }
+}

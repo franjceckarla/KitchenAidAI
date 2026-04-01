@@ -1,0 +1,276 @@
+﻿# Chat Logger - Dokumentacija
+
+## Pregled
+
+Sustav za automatsko logiranje svih razgovora između korisnika i agenta. Logiranje se provodi kroz tri kanala:
+
+1. **JSON logovi** - Strukturirani format za laku analizu
+2. **CSV logovi** - Za Excel/tablice analizu
+3. **PowerShell logovi** - Detaljne logove sa arhiviranjem i kompresijom
+
+---
+
+## Struktura datoteka
+
+```
+KitchenAidAI/
+├── Services/
+│   └── ChatLogger.cs           # Glavni servis za logiranje
+├── Controllers/
+│   └── ChatController.cs        # API endpoint za chat
+├── Scripts/
+│   └── LogChat.ps1              # PowerShell logging skript
+└── Logs/
+    └── Chat/                    # Direktorij za sve logove
+        ├── *.json               # JSON logovi
+        ├── *.csv                # CSV logovi
+        ├── PowerShell/
+        │   ├── *.log            # PowerShell detaljni logovi
+        │   ├── *.jsonl          # JSON Lines format
+        │   └── Archive/         # Arhivirane datoteke starije od 30 dana
+```
+
+---
+
+## Kako funkcionira
+
+### 1. Slanje poruke i logiranje
+
+**Request:**
+```bash
+POST /api/chat/send
+Content-Type: application/json
+
+{
+    "userId": 123,
+    "message": "Kako napraviti tortu?",
+    "messageType": "Recipe"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "response": "Odgovor agenta...",
+    "timestamp": "2024-01-15T10:30:45.123Z"
+}
+```
+
+### 2. Tokovi logiranja
+
+```
+User Message
+    ↓
+ChatController.SendMessage()
+    ↓
+ChatLogger.LogChatMessage()
+    ├─→ LogToJson() - Sprema u chat-log-YYYY-MM-DD.json
+    ├─→ LogToCsv()  - Sprema u chat-log-YYYY-MM-DD.csv
+    └─→ InvokePowerShellLogger() - Pokreće PowerShell skriptu
+        ├─→ Sprema detaljnu poruku u chat-log-YYYY-MM-DD.log
+        ├─→ Sprema JSON backup u YYYY-MM-DD-messages.jsonl
+        ├─→ Arhivira datoteke starije od 30 dana
+        └─→ Kompresira datoteke starije od 90 dana
+```
+
+---
+
+## API Endpoints
+
+### 1. Slanje poruke
+```
+POST /api/chat/send
+```
+
+**Parametri:**
+- `userId` (int, opciono) - ID korisnika
+- `message` (string, obavezno) - Poruka koju šalje korisnik
+- `messageType` (string, opciono) - Tip poruke (npr. "Recipe", "Ingredient", "Standard")
+
+**Odgovori:**
+- `200 OK` - Poruka je obrađena i logirana
+- `400 Bad Request` - Poruka je obavezna
+- `500 Internal Server Error` - Greška pri obradi
+
+---
+
+### 2. Dohvat logova
+```
+GET /api/chat/logs/{date}
+```
+
+**Parametri:**
+- `date` (string) - Datum u formatu YYYY-MM-DD
+
+**Odgovori:**
+- `200 OK` - Logovi pronađeni
+- `404 Not Found` - Logovi za taj datum ne postoje
+- `500 Internal Server Error` - Greška pri čitanju logova
+
+---
+
+## Format logiranih podataka
+
+### JSON Format
+```json
+[
+  {
+    "timestamp": "2024-01-15 10:30:45.123",
+    "userId": 123,
+    "userMessage": "Kako napraviti tortu?",
+    "agentResponse": "Trebatćeš brašno, jaja, šećer...",
+    "messageType": "Recipe",
+    "sessionId": "a1b2c3d4"
+  }
+]
+```
+
+### CSV Format
+```
+Timestamp,UserId,UserMessage,AgentResponse,MessageType
+"2024-01-15 10:30:45.123",123,"Kako napraviti tortu?","Trebatćeš brašno, jaja, šećer...","Recipe"
+```
+
+### PowerShell Log Format
+```
+[2024-01-15 10:30:45.123] ========================================
+Timestamp: 2024-01-15 10:30:45.123
+User ID: 123
+Message Type: Recipe
+Session ID: a1b2c3d4
+----------------------------------------
+USER MESSAGE:
+Kako napraviti tortu?
+----------------------------------------
+AGENT RESPONSE:
+Trebatćeš brašno, jaja, šećer...
+========================================
+```
+
+---
+
+## Konfiguracija
+
+### Direktorij za logove
+Logovi se spremaju u:
+```
+{ProjectRoot}/Logs/Chat/
+```
+
+Ako direktorij ne postoji, **automatski će biti kreiran**.
+
+### PowerShell Skript
+- Lokacija: `{ProjectRoot}/Scripts/LogChat.ps1`
+- Timeout: 5 sekundi
+- Execution Policy: Bypass
+
+### Čišćenje starih logova
+- Datoteke starije od **30 dana** → Arhivirane u `Archive/` folder
+- Datoteke starije od **90 dana** → Kompresirane u `.zip` format
+
+---
+
+## Primjer korištenja iz JavaScript-a
+
+```javascript
+async function sendChatMessage() {
+    const message = document.getElementById('messageInput').value;
+    
+    const response = await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: 123,
+            message: message,
+            messageType: 'Standard'
+        })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+        console.log('Agent odgovara:', result.response);
+    } else {
+        console.error('Greška pri slanju poruke');
+    }
+}
+```
+
+---
+
+## Primjer korištenja iz C#-a
+
+```csharp
+var chatLogger = serviceProvider.GetRequiredService<ChatLogger>();
+
+chatLogger.LogChatMessage(
+    userId: 123,
+    userMessage: "Koji su sastojci?",
+    agentResponse: "Brašno, jaja, mlijeko...",
+    messageType: "Recipe"
+);
+```
+
+---
+
+## Troubleshooting
+
+### Problem: PowerShell skript se ne pokreće
+**Rješenje:** Provjeri:
+1. Postoji li datoteka `Scripts/LogChat.ps1`?
+2. Je li `ExecutionPolicy` postavljen na `Bypass` ili `RemoteSigned`?
+3. Provjeri logove aplikacije za greške
+
+### Problem: Logs direktorij nije kreiran
+**Rješenje:** ChatLogger automatski kreira direktorije. Ako to ne radi:
+1. Provjeri dozvole za pisanje u projekt
+2. Provjeri error logove
+
+### Problem: CSV datoteke su komplicirana
+**Rješenje:** Poruke s navodnicima i novim linijama su escaped:
+- `"` → `""`
+- Novi redak → `\n`
+
+---
+
+## Sigurnost i privatnost
+
+⚠️ **NAPOMENA:** Log datoteke mogu sadržavati osjetljive informacije:
+- Korisničke ID-eve
+- Sadržaj razgovora
+- AI odgovore
+
+**Preporuke:**
+1. Ograniči pristup `/api/chat/logs` endpointu
+2. Redovno briši stare logove
+3. Enkriptiraj logove na production serveru
+4. Koristi SSL/HTTPS
+
+---
+
+## Performance
+
+- Logiranje je **asinkrono** i ne blokira glavnu nit
+- PowerShell se pokreće s **5-sekundnim timeoutom**
+- CSV i JSON logovi se pišu direktno na disk
+- Nema baze podataka, sve datoteke
+
+---
+
+## Buduća poboljšanja
+
+- [ ] Elasticsearch integracija za centralnu analizu
+- [ ] Real-time dashboard za logove
+- [ ] Enkriptovani logovi
+- [ ] Database backing (SQL Server/PostgreSQL)
+- [ ] Email notifikacije za greške
+- [ ] Advanced filtering i search
+
+---
+
+## Kontakt
+
+Za pitanja ili probleme, kontaktiraj razvojni tim.

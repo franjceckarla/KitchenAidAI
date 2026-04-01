@@ -1,0 +1,296 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\receptkuharica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\receptkuharica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\frizider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\frizider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\kuharica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\kuharica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\recept.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\recept.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\enums\\tipodgovora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\enums\\tipodgovora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\enums\\preferencijaprehrane.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\enums\\preferencijaprehrane.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\nutritivnavrijednost.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\nutritivnavrijednost.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\enums\\kategorijanamirnice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\enums\\kategorijanamirnice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\enums\\mjera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\enums\\mjera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\enums\\tezinarecepta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\enums\\tezinarecepta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\kitchenaidai.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\kitchenaidai.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\chatmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\chatmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\namirnica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\namirnica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|c:\\users\\user\\desktop\\.net\\kitchenaidai\\kitchenaidai\\models\\korakrecepta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{643E47B7-DE04-475D-895A-28DE8B2F0444}|KitchenAidAI\\KitchenAidAI.csproj|solutionrelative:kitchenaidai\\models\\korakrecepta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Program.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Program.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Program.cs",
+              "RelativeToolTip": "KitchenAidAI\\Program.cs",
+              "ViewState": "AgIAAGgBAAAAAAAAAAAAAIsAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T14:25:12.679Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ChatMessage.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\ChatMessage.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\ChatMessage.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\ChatMessage.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\ChatMessage.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAMBcwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T11:16:40.772Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Frizider.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Frizider.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Frizider.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Frizider.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Frizider.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.8Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\User.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\User.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\User.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAkAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:13.035Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ReceptKuharica.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\ReceptKuharica.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\ReceptKuharica.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\ReceptKuharica.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\ReceptKuharica.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T11:02:54.63Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Namirnica.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Namirnica.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Namirnica.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Namirnica.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Namirnica.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAIBIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T11:16:41.188Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "KorakRecepta.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\KorakRecepta.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\KorakRecepta.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\KorakRecepta.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\KorakRecepta.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAEBUwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T11:16:53.504Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Recept.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Recept.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Recept.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Recept.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Recept.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.579Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Kuharica.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Kuharica.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Kuharica.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Kuharica.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Kuharica.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.913Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "TipOdgovora.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\TipOdgovora.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Enums\\TipOdgovora.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\TipOdgovora.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Enums\\TipOdgovora.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T10:29:02.035Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "PreferencijaPrehrane.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\PreferencijaPrehrane.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Enums\\PreferencijaPrehrane.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\PreferencijaPrehrane.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Enums\\PreferencijaPrehrane.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.012Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "NutritivnaVrijednost.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\NutritivnaVrijednost.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\NutritivnaVrijednost.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\NutritivnaVrijednost.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\NutritivnaVrijednost.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.384Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "KategorijaNamirnice.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\KategorijaNamirnice.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Enums\\KategorijaNamirnice.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\KategorijaNamirnice.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Enums\\KategorijaNamirnice.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.274Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Mjera.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\Mjera.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Enums\\Mjera.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\Mjera.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Enums\\Mjera.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:12.129Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "TezinaRecepta.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\TezinaRecepta.cs",
+              "RelativeDocumentMoniker": "KitchenAidAI\\Models\\Enums\\TezinaRecepta.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\Models\\Enums\\TezinaRecepta.cs",
+              "RelativeToolTip": "KitchenAidAI\\Models\\Enums\\TezinaRecepta.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T09:28:11.11Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "KitchenAidAI",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\KitchenAidAI.csproj",
+              "RelativeDocumentMoniker": "KitchenAidAI\\KitchenAidAI.csproj",
+              "ToolTip": "C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\KitchenAidAI.csproj",
+              "RelativeToolTip": "KitchenAidAI\\KitchenAidAI.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-03-27T09:28:10.73Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

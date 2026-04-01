@@ -1,0 +1,125 @@
+﻿# ===================================
+# KitchenAidAI Chat Logger Script
+# Interaktivna seskija sa AI agentom
+# ===================================
+
+param(
+    [string]$LogPath = "C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\logChat.txt"
+)
+
+# Konfiguracija
+$loggerScript = "C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\ChatLogger.ps1"
+$maxMessageLength = 500
+
+# Provjeravati da li postoji logger script
+if (-not (Test-Path -Path $loggerScript)) {
+    Write-Host "❌ Greška: ChatLogger.ps1 skript nije pronađen!" -ForegroundColor Red
+    Write-Host "Trebam ga kreiramo na: $loggerScript" -ForegroundColor Yellow
+    exit 1
+}
+
+# ===== INICIJALIZACIJA =====
+Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+Write-Host "║       KITCHENAIDAI - CHAT LOGGER SA AI AGENTOM                ║" -ForegroundColor Cyan
+Write-Host "║                      Verzija 1.0                             ║" -ForegroundColor Cyan
+Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+
+Write-Host "`n📝 Chat log path: $LogPath" -ForegroundColor Yellow
+Write-Host "🔄 Logger script: $loggerScript" -ForegroundColor Yellow
+
+# Očisti stari log ako postoji ili kreiraj novi
+if (Test-Path -Path $LogPath) {
+    Write-Host "📂 Logiranje u postojeći fajl..." -ForegroundColor Green
+} else {
+    Write-Host "✨ Kreiranje novog log fajla..." -ForegroundColor Green
+    New-Item -ItemType File -Path $LogPath -Force | Out-Null
+}
+
+# Loguj početak sesije
+$sessionStart = @"
+
+╔════════════════════════════════════════════════════════════════╗
+                  NOVA CHAT SESIJA POKRENUTA
+                  Vrijeme: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+╚════════════════════════════════════════════════════════════════╝
+
+"@
+
+Add-Content -Path $LogPath -Value $sessionStart
+
+Write-Host "`n✅ Sesija pokrenuta! Sad možeš da chatam sa AI agentom." -ForegroundColor Green
+Write-Host "📌 Upiši 'exit' ili 'quit' da izađeš iz chat-a`n" -ForegroundColor Cyan
+
+# ===== GLAVNA CHAT PETLJA =====
+$porukaBroj = 0
+
+while ($true) {
+    $porukaBroj++
+    
+    # Korisničko pitanje
+    Write-Host "👤 Ti [$porukaBroj]: " -ForegroundColor Cyan -NoNewline
+    $userMessage = Read-Host
+    
+    # Provjera za exit
+    if ($userMessage.ToLower() -eq "exit" -or $userMessage.ToLower() -eq "quit") {
+        Write-Host "`n🛑 Chat završen. Hvala što ste koristili KitchenAidAI ChatLogger!" -ForegroundColor Yellow
+        
+        $sessionEnd = @"
+
+╔════════════════════════════════════════════════════════════════╗
+                  CHAT SESIJA ZAVRŠENA
+                  Vrijeme završetka: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                  Ukupno poruka: $porukaBroj
+╚════════════════════════════════════════════════════════════════╝
+
+"@
+        Add-Content -Path $LogPath -Value $sessionEnd
+        break
+    }
+    
+    # Validacija - ne loguj prazne poruke
+    if ([string]::IsNullOrWhiteSpace($userMessage)) {
+        Write-Host "⚠️ Poruka je prazna, pokušaj ponovno!" -ForegroundColor Yellow
+        $porukaBroj--
+        continue
+    }
+    
+    # Loguj korisničku poruku
+    & $loggerScript -Message $userMessage -Type "USER" -LogPath $LogPath
+    
+    # Simulacija AI odgovora (u realnom slučaju bi to bilo pravi AI)
+    Write-Host "`n🤖 AI Agent: " -ForegroundColor Green -NoNewline
+    
+    # Primjer AI odgovora
+    $aiResponses = @(
+        "To je odličnog pitanja! Trebam da razmislim o tome...",
+        "Mogu ti pomoći sa tim. Evo što trebam znati...",
+        "Čini se kao interesantan zahtjev. Trebam malo više detalja...",
+        "Odličnog izbora! Preporučujem...",
+        "To je komplicitno, ali mogu ti objasniti...",
+        "Ima nekoliko opcija - hajde da razmotrimo sve..."
+    )
+    
+    $randomIndex = Get-Random -Minimum 0 -Maximum $aiResponses.Count
+    $aiMessage = $aiResponses[$randomIndex]
+    
+    Write-Host $aiMessage -ForegroundColor Green
+    
+    # Loguj AI odgovor
+    & $loggerScript -Message $aiMessage -Type "AI_AGENT" -LogPath $LogPath
+    
+    Write-Host ""
+}
+
+# ===== ZAVRŠETAK =====
+Write-Host "📄 Kompletan log je dostupan u: $LogPath" -ForegroundColor Yellow
+Write-Host "💾 Log je uspješno sačuvan!" -ForegroundColor Green
+
+# Otvori log fajl ako korisnik želi
+Write-Host "`nDa li želiš da otvoriš log fajl? (y/n): " -NoNewline
+$openLog = Read-Host
+if ($openLog.ToLower() -eq "y" -or $openLog.ToLower() -eq "yes") {
+    Start-Process -FilePath notepad.exe -ArgumentList $LogPath
+}
+
+Write-Host "`n👋 Hvala što ste koristili KitchenAidAI ChatLogger!" -ForegroundColor Cyan

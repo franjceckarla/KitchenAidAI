@@ -1,0 +1,28 @@
+﻿param(
+    [string]$Message = "",
+    [string]$Type = "USER",
+    [string]$LogPath = "C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\.github\hooks\logChat.txt"
+)
+
+# Kreiraj direktorij ako ne postoji
+$LogDir = Split-Path -Path $LogPath -Parent
+if (-not (Test-Path -Path $LogDir)) {
+    New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
+}
+
+# Formatiranje poruke sa separatorom
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+$separator = "=" * 80
+
+# Kreiraj log entry
+$logEntry = @"
+[$timestamp] [$Type]
+$Message
+$separator
+"@
+
+# Dodaj u log fajl
+Add-Content -Path $LogPath -Value $logEntry
+
+# Prikazi u konzoli
+Write-Host "[$timestamp] [$Type] - Logged"

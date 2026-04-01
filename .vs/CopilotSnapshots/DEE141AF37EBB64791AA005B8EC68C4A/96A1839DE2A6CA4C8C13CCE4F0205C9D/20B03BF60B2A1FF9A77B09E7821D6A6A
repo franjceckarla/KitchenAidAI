@@ -1,0 +1,98 @@
+﻿using KitchenAidAI.Models;
+using KitchenAidAI.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace KitchenAidAI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ChatController : ControllerBase
+    {
+        private readonly ChatLogger _chatLogger;
+        private readonly ILogger<ChatController> _logger;
+
+        public ChatController(ChatLogger chatLogger, ILogger<ChatController> logger)
+        {
+            _chatLogger = chatLogger;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Pošalji poruku agentу i logira razgovor
+        /// </summary>
+        [HttpPost("send")]
+        public IActionResult SendMessage([FromBody] ChatMessageRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Message))
+            {
+                return BadRequest(new { error = "Poruka je obavezna" });
+            }
+
+            try
+            {
+                // Simulacija odgovora agenta (zamijeni sa pravom logikom)
+                var agentResponse = GenerateAgentResponse(request.Message);
+
+                // Logiranje razgovora
+                _chatLogger.LogChatMessage(
+                    userId: request.UserId ?? 0,
+                    userMessage: request.Message,
+                    agentResponse: agentResponse,
+                    messageType: request.MessageType ?? "Standard"
+                );
+
+                return Ok(new
+                {
+                    success = true,
+                    response = agentResponse,
+                    timestamp = DateTime.Now
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri slanju poruke");
+                return StatusCode(500, new { error = "Greška pri obradi poruke" });
+            }
+        }
+
+        /// <summary>
+        /// Dohvati log datoteke za određeni datum
+        /// </summary>
+        [HttpGet("logs/{date}")]
+        public IActionResult GetLogs(string date)
+        {
+            try
+            {
+                var logsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs", "Chat");
+                var logFile = Path.Combine(logsDirectory, $"chat-log-{date}.json");
+
+                if (!System.IO.File.Exists(logFile))
+                {
+                    return NotFound(new { error = "Log datoteka nije pronađena" });
+                }
+
+                var content = System.IO.File.ReadAllText(logFile);
+                return Ok(new { date = date, logs = content });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri čitanju log datoteke");
+                return StatusCode(500, new { error = "Greška pri čitanju logova" });
+            }
+        }
+
+        private string GenerateAgentResponse(string message)
+        {
+            // TODO: Zamijeni sa pravom logikom agenta (pozovi AI servis, itd.)
+            // Ovo je samo placeholder
+            return $"Odgovor agenta na: {message}";
+        }
+    }
+
+    public class ChatMessageRequest
+    {
+        public int? UserId { get; set; }
+        public string? Message { get; set; }
+        public string? MessageType { get; set; }
+    }
+}

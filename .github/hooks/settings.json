@@ -1,0 +1,22 @@
+{
+    "hooks": {
+        "UserPromptSubmit": [
+            {
+                "type": "command",
+                "command": "powershell.exe -ExecutionPolicy Bypass -Command '$input | Out-String | Add-Content -Path ''C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\.github\\hooks\\agentLog.txt'''"
+            }
+        ],
+        "PreToolUse": [
+            {
+                "type": "command",
+                "command": "powershell.exe -ExecutionPolicy Bypass -Command '$input | Out-String | Add-Content -Path ''C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\.github\\hooks\\agentLog.txt'''"
+            }
+        ],
+        "PostToolUse": [
+            {
+                "type": "command",
+                "command": "powershell.exe -ExecutionPolicy Bypass -Command '$input | Out-String | Add-Content -Path ''C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\.github\\hooks\\agentLog.txt'''"
+            }
+        ]
+    }
+}

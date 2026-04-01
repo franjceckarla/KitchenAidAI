@@ -1,0 +1,17 @@
+﻿namespace KitchenAidAI.Models
+{
+    public class Kuharica
+    {
+        private int _id;
+        private string _naziv;
+        private List<ReceptKuharica> _receptKuharice;
+        private DateTime _kreirano;
+
+        public int id { get; set; }
+        public string naziv { get; set; }
+        public List<ReceptKuharica>? receptKuharice { get; set; }
+        public DateTime kreirano { get; set; }
+        public Kuharica() { kreirano = DateTime.Now; }
+    
+    }
+}

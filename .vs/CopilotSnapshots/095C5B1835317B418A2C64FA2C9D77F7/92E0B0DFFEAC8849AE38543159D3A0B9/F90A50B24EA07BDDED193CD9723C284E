@@ -1,0 +1,22 @@
+﻿{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -Command \"'[' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + '] USER: ' + $input | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -Command \"'[' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + '] TOOL_USED: ' + $input | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -NoProfile -Command \"'[' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + '] TOOL_RESULT: ' + $input | Add-Content -Path 'C:\\Users\\User\\Desktop\\.NET\\KitchenAidAI\\KitchenAidAI\\.github\\hooks\\logChat.txt'\""
+      }
+    ]
+  }
+}

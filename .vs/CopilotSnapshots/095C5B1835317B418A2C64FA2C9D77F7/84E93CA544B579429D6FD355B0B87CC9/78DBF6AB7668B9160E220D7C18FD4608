@@ -1,0 +1,32 @@
+﻿using KitchenAidAI.Models.Enums;
+
+namespace KitchenAidAI.Models
+{
+    public class Recept
+    {
+        private int _id;
+        private string _naziv;
+        private string _opis;
+        private double _vrijemeKuhanja;
+        private TezinaRecepta _tezina;
+        private int _brojPorcija;
+        private DateTime _datumKreiranja;
+        private List<KorakRecepta> _koraci;
+
+        public int id { get; set; }
+        public string? naziv { get; set; }
+        public string? opis { get; set; }
+        public double vrijemeKuhanja { get; set; }
+        public TezinaRecepta tezina { get; set; }
+        public int brojPorcija { get; set; }
+        public DateTime datumKreiranja { get; set; }
+        public List<KorakRecepta>? koraci { get; set; }
+
+        public Recept()
+        {
+            datumKreiranja = DateTime.Now;
+        }
+
+
+    }
+}

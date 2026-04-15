@@ -1,0 +1,56 @@
+@model KitchenAidAI.Models.Kuharica
+
+@{
+    ViewData["Title"] = "Detalji kuharice";
+}
+
+<section class="hero-section">
+    <h1>@Model.naziv</h1>
+    <p class="lead">Korisnik: @ViewBag.UserName</p>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k" style="width: min(920px, 100%); text-align: left;">
+        <h2>Spremljeni recepti</h2>
+        @if (Model.receptKuharice is null || !Model.receptKuharice.Any())
+        {
+            <p>U ovoj kuharici nema spremljenih recepata.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Naziv</th>
+                            <th>Opis</th>
+                            <th>Vrijeme</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.receptKuharice)
+                        {
+                            <tr>
+                                <td>@item.recept?.naziv</td>
+                                <td>@item.recept?.opis</td>
+                                <td>@item.recept?.vrijemeKuhanja min</td>
+                                <td>
+                                    @if (item.recept is not null)
+                                    {
+                                        <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Recepti" asp-action="Details" asp-route-id="@item.recept.id">Detalji</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a class="btn btn-y2k" asp-controller="Kuharice" asp-action="Index">Natrag na kuharice</a>
+            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Recepti" asp-action="Index">Svi recepti</a>
+        </div>
+    </article>
+</div>

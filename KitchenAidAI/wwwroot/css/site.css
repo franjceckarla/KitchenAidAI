@@ -18,5 +18,12 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0;
+  background-image: url('../images/y2k-kitchen/background.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-image:
+    linear-gradient(rgba(253, 240, 245, 0.35), rgba(253, 240, 245, 0.35)),
+    url('../images/y2k-kitchen/background.png');
 }

@@ -1,0 +1,24 @@
+@model IReadOnlyList<KitchenAidAI.Models.User>
+
+@{
+    ViewData["Title"] = "Kuharice";
+}
+
+<section class="hero-section">
+    <h1>Kuharice</h1>
+    <p class="lead">Odaberi korisnika i otvori njegovu spremljenu kuharicu.</p>
+</section>
+
+<div class="main-cta-section">
+    @foreach (var user in Model)
+    {
+        var cookbook = user.kuharica;
+        var recipeCount = cookbook?.receptKuharice?.Count ?? 0;
+        <article class="card-y2k cta-card">
+            <h2>@(cookbook?.naziv ?? "Kuharica")</h2>
+            <p><strong>Korisnik:</strong> @user.username</p>
+            <p><strong>Spremljeni recepti:</strong> @recipeCount</p>
+            <a class="btn btn-y2k" asp-controller="Kuharice" asp-action="Details" asp-route-userId="@user.id">Otvori kuharicu</a>
+        </article>
+    }
+</div>

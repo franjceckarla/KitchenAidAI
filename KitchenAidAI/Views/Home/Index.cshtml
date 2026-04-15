@@ -1,8 +1,49 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model KitchenAidAI.Models.ViewModels.HomeDashboardViewModel
+
+@{
+    ViewData["Title"] = "Početna";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero-section">
+    <h1 class="display-4 fade-in-element">Dobrodošli u KitchenAidAI!</h1>
+    <p class="lead fade-in-element">Vaš Y2K pomoćnik u kuhinji.</p>
 </div>
+
+<div class="main-cta-section">
+    <div class="card-y2k cta-card">
+        <h2>Korisnici</h2>
+        <p>Upravljajte korisničkim profilima i postavkama.</p>
+        <a asp-controller="Korisnici" asp-action="Index" class="btn btn-y2k">Idi na Korisnike</a>
+        <p class="card-emoji-strip" aria-hidden="true">👤 ✨ 🧾</p>
+    </div>
+    <div class="card-y2k cta-card">
+        <h2>Frižider</h2>
+        <p>Otvori frižider za odabranog korisnika.</p>
+        <a asp-controller="Frizider" asp-action="Index" class="btn btn-y2k btn-y2k-secondary">Otvori Frižider</a>
+        <div class="fridge-preview-list">
+            @foreach (var user in Model.Users)
+            {
+                var itemCount = user.frizider?.namirnice?.Count ?? 0;
+                <a class="fridge-preview-item" asp-controller="Frizider" asp-action="Index" asp-route-userId="@user.id">
+                    <span class="fridge-preview-name">@user.username</span>
+                    <span class="fridge-preview-meta">@itemCount namirnica</span>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-y2k cta-card">
+        <h2>Chat</h2>
+        <p>Postavi pitanje AI pomoćniku za ideje i planiranje recepata.</p>
+        <a asp-controller="Home" asp-action="Chat" class="btn btn-y2k btn-y2k-tertiary">Otvori Chat</a>
+        <p class="card-emoji-strip" aria-hidden="true">💬 🤖 🍳</p>
+    </div>
+</div>
+
+<section class="home-quick-section">
+    <article class="card-y2k quick-card">
+        <h3>Kuharice</h3>
+        <p>Pregledaj spremljene recepte korisnika po kuharicama.</p>
+        <a asp-controller="Kuharice" asp-action="Index" class="btn btn-y2k">Otvori Kuharice</a>
+    </article>
+</section>
+

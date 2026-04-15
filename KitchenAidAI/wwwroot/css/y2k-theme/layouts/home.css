@@ -1,0 +1,113 @@
+/* Y2K Theme - Home Layout */
+.hero-section {
+    text-align: center;
+    padding: 8px 20px 0;
+    animation: fadeIn 0.9s ease-out;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 8px;
+}
+
+.main-cta-section {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.cta-card {
+    width: 300px;
+    text-align: center;
+    animation: fadeIn 0.9s ease-out forwards;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 420px;
+}
+
+.home-quick-section {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 26px auto 10px;
+}
+
+.quick-card {
+    text-align: center;
+    width: min(560px, 100%);
+}
+
+.quick-card h3 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.quick-card p {
+    margin-bottom: 8px;
+}
+
+.fridge-preview-list {
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.fridge-preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 8px 10px;
+    background: rgba(0, 255, 255, 0.12);
+    border: 2px solid rgba(0, 255, 255, 0.35);
+    color: #2f2f2f;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.fridge-preview-item:hover {
+    background: rgba(0, 255, 255, 0.24);
+}
+
+.fridge-preview-meta {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.cta-card h2 {
+    font-size: 2rem;
+    color: var(--secondary-color);
+}
+
+.cta-card p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.card-emoji-strip {
+    margin-top: auto;
+    margin-bottom: 0;
+    font-size: 1.9rem;
+    letter-spacing: 0.22rem;
+    opacity: 0.9;
+}
+
+.recipe-card {
+    justify-content: flex-start;
+}
+
+.recipe-card .btn-y2k {
+    margin-top: auto;
+}
+
+.cta-card .btn-y2k + .btn-y2k {
+    margin-top: 0.7rem;
+}
+
+@media (max-width: 991px) {
+    .quick-card { width: min(520px, 100%); }
+}

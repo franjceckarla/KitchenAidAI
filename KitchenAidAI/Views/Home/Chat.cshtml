@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "AI Chat";
+}
+
+<section class="hero-section">
+    <h1>Kitchen Chat</h1>
+    <p class="lead">Uskoro: pametni razgovor za preporuke recepata i planiranje obroka.</p>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: 460px; max-width: 100%;">
+        <h2>Što će chat moći?</h2>
+        <p>Predložiti recepte prema namirnicama iz frižidera.</p>
+        <p>Prilagoditi preporuke prehrambenim preferencijama.</p>
+        <p>Predložiti jednostavan plan kuhanja za tjedan.</p>
+        <div class="d-grid gap-2 mt-3">
+            <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Index">Odaberi korisnika</a>
+            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Home" asp-action="Index">Natrag na početnu</a>
+        </div>
+    </article>
+</div>

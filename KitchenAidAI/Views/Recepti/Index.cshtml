@@ -1,0 +1,22 @@
+@model IReadOnlyList<KitchenAidAI.Models.Recept>
+
+@{
+    ViewData["Title"] = "Recepti";
+}
+
+<section class="hero-section">
+    <h1>Recepti</h1>
+    <p class="lead">Odaberi recept i pregledaj detalje pripreme.</p>
+</section>
+
+<div class="main-cta-section">
+    @foreach (var recipe in Model)
+    {
+        <article class="card-y2k cta-card recipe-card">
+            <h2>@recipe.naziv</h2>
+            <p>@recipe.opis</p>
+            <p>@recipe.vrijemeKuhanja min · @recipe.tezina</p>
+            <a class="btn btn-y2k" asp-controller="Recepti" asp-action="Details" asp-route-id="@recipe.id">Detalji</a>
+        </article>
+    }
+</div>

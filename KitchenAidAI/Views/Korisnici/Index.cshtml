@@ -1,0 +1,30 @@
+@model IReadOnlyList<KitchenAidAI.Models.User>
+
+@{
+    ViewData["Title"] = "Korisnici";
+}
+
+<section class="hero-section">
+    <h1 class="fade-in-element">Korisnici</h1>
+    <p class="lead fade-in-element">Odaberi korisnika i nastavi prema njegovom frizideru i receptima.</p>
+</section>
+
+@if (TempData["Warning"] is string warning)
+{
+    <div class="alert alert-warning text-center" role="alert">
+        @warning
+    </div>
+}
+
+<div class="main-cta-section">
+    @foreach (var user in Model)
+    {
+        <article class="card-y2k cta-card">
+            <h2>@user.username</h2>
+            <p>@user.email</p>
+            <p>Preferencija: @user.preferencijaPrehrane</p>
+            <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Profil</a>
+            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Frizider" asp-action="Index" asp-route-userId="@user.id">Frižider</a>
+        </article>
+    }
+</div>

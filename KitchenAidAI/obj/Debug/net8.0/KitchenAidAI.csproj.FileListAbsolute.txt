@@ -31,4 +31,4 @@ C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\obj\Debug\net8.0\refint\Kit
 C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\obj\Debug\net8.0\KitchenAidAI.pdb
 C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\obj\Debug\net8.0\KitchenAidAI.genruntimeconfig.cache
 C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\obj\Debug\net8.0\ref\KitchenAidAI.dll
-C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\User\Desktop\.NET\KitchenAidAI\KitchenAidAI\obj\Debug\net8.0\KitchenAidAI.sourcelink.json

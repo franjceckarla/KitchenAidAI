@@ -1,0 +1,20 @@
+/* Y2K Theme - Colors */
+:root {
+    --y2k-pink-hot: #FF1493;
+    --y2k-pink-light: #FFB6C1;
+    --y2k-lime-green: #32CD32;
+    --y2k-cyan-blue: #00FFFF;
+    --y2k-purple: #9370DB;
+    --y2k-peach: #FFA07A;
+    --y2k-lavender: #E6E6FA;
+
+    /* Semantic Colors */
+    --primary-color: var(--y2k-pink-hot);
+    --secondary-color: var(--y2k-cyan-blue);
+    --accent-color: var(--y2k-lime-green);
+    --background-color: #fdf0f5; /* Light lavender-pink */
+    --surface-color: #ffffff;
+    --text-color: #333333;
+    --border-color: var(--y2k-pink-hot);
+    --shadow-color: rgba(255, 20, 147, 0.4);
+}

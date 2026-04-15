@@ -1,0 +1,50 @@
+@model KitchenAidAI.Models.Frizider
+
+@{
+    ViewData["Title"] = "Frižider";
+}
+
+<section class="hero-section">
+    <h1>Frižider korisnika @ViewBag.UserName</h1>
+</section>
+
+<div class="main-cta-section" style="align-items: stretch;">
+    <article class="card-y2k" style="width: min(920px, 100%);">
+        <h2>Namirnice</h2>
+        @if (Model?.namirnice is null || !Model.namirnice.Any())
+        {
+            <p>Nema namirnica u frižideru.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Naziv</th>
+                            <th>Kategorija</th>
+                            <th>Količina</th>
+                            <th>Mjerna Jedinica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.namirnice)
+                        {
+                            <tr>
+                                <td>@item.naziv</td>
+                                <td>@item.kategorija</td>
+                                <td>@item.kolicinaUFrizideru</td>
+                                <td>@item.mjera</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a class="btn btn-y2k" asp-controller="Recepti" asp-action="Index">Predloži recepte</a>
+            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Korisnici" asp-action="Details" asp-route-id="@ViewBag.UserId">Natrag na profil</a>
+        </div>
+    </article>
+</div>

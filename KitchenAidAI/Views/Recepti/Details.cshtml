@@ -1,0 +1,23 @@
+@model KitchenAidAI.Models.Recept
+
+@{
+    ViewData["Title"] = "Detalji recepta";
+}
+
+<section class="hero-section">
+    <h1>@Model.naziv</h1>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: 460px; max-width: 100%;">
+        <h2>Informacije</h2>
+        <p>@Model.opis</p>
+        <p><strong>Vrijeme:</strong> @Model.vrijemeKuhanja min</p>
+        <p><strong>Težina:</strong> @Model.tezina</p>
+        <p><strong>Porcije:</strong> @Model.brojPorcija</p>
+        <div class="d-grid gap-2 mt-3">
+            <a class="btn btn-y2k" asp-controller="Recepti" asp-action="Index">Natrag na recepte</a>
+            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Korisnici" asp-action="Index">Korisnici</a>
+        </div>
+    </article>
+</div>

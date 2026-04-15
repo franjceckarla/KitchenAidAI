@@ -1,0 +1,60 @@
+/* Y2K Theme - Navigation */
+.navbar-y2k {
+    background-color: rgba(255, 182, 193, 0.8); /* Semi-transparent light pink */
+    backdrop-filter: blur(5px);
+    border-bottom: 3px solid var(--y2k-pink-hot);
+}
+
+.navbar-y2k .navbar-brand {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1.8rem;
+    color: var(--y2k-pink-hot);
+    text-shadow: 2px 2px rgba(255, 255, 255, 0.7);
+}
+
+.navbar-y2k .nav-link {
+    color: var(--text-color);
+    font-weight: bold;
+    margin: 0 10px;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar-y2k .nav-link:hover {
+    background-color: var(--y2k-pink-hot);
+    color: var(--surface-color);
+}
+
+.navbar-y2k .nav-link.active {
+    background-color: var(--y2k-pink-hot);
+    color: var(--surface-color);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+.breadcrumb-y2k-wrap {
+    margin-top: -6px;
+    margin-bottom: 10px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 2px solid rgba(255, 20, 147, 0.35);
+    backdrop-filter: blur(3px);
+}
+
+.breadcrumb-y2k {
+    background: transparent;
+    font-weight: 700;
+}
+
+.breadcrumb-y2k a {
+    color: var(--y2k-pink-hot);
+    text-decoration: none;
+}
+
+.breadcrumb-y2k .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--y2k-pink-hot);
+}
+
+.breadcrumb-y2k .breadcrumb-item.active {
+    color: #5a3551;
+}

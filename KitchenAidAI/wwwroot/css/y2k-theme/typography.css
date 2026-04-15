@@ -1,0 +1,11 @@
+/* Y2K Theme - Typography */
+body {
+    font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+    color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif;
+    color: var(--primary-color);
+    text-shadow: 2px 2px var(--shadow-color);
+}

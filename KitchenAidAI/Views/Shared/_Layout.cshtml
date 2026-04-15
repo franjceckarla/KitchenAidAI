@@ -7,10 +7,70 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/KitchenAidAI.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/y2k-theme/colors.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/y2k-theme/typography.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/y2k-theme/components/buttons.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/y2k-theme/components/cards.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/y2k-theme/components/navigation.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/y2k-theme/animations.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/y2k-theme/layouts/home.css" asp-append-version="true">
 </head>
 <body>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        var pageTitle = ViewData["Title"]?.ToString() ?? "";
+
+        var sectionLabel = currentController switch
+        {
+            "Home" when string.Equals(currentAction, "Privacy", StringComparison.OrdinalIgnoreCase) => "Informacije",
+            "Home" when string.Equals(currentAction, "Chat", StringComparison.OrdinalIgnoreCase) => "Asistent",
+            "Home" => "Početna",
+            "Korisnici" => "Korisnici",
+            "Frizider" => "Frižider",
+            "Recepti" => "Recepti",
+            "Kuharice" => "Kuharice",
+            _ => "Sekcija"
+        };
+
+        var sectionController = currentController switch
+        {
+            "Home" => "Home",
+            "Korisnici" => "Korisnici",
+            "Frizider" => "Korisnici",
+            "Recepti" => "Recepti",
+            "Kuharice" => "Kuharice",
+            _ => "Home"
+        };
+
+        var sectionAction = currentController switch
+        {
+            "Home" when string.Equals(currentAction, "Privacy", StringComparison.OrdinalIgnoreCase) => "Privacy",
+            "Home" when string.Equals(currentAction, "Chat", StringComparison.OrdinalIgnoreCase) => "Chat",
+            _ => "Index"
+        };
+
+        var sectionHref = Url.Action(sectionAction, sectionController) ?? "#";
+        var currentHref = $"{Context.Request.Path}{Context.Request.QueryString}";
+
+        var thirdLevelLabel = !string.IsNullOrWhiteSpace(pageTitle)
+            ? pageTitle
+            : (string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase) ? "Pregled" : currentAction);
+
+        if (string.Equals(thirdLevelLabel, sectionLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            thirdLevelLabel = string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase) ? "Pregled" : currentAction;
+        }
+
+        string navClass(string controller, string? action = null)
+        {
+            var controllerMatch = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+            var actionMatch = action is null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+            return controllerMatch && actionMatch ? "nav-link active" : "nav-link";
+        }
+    }
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-y2k box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">KitchenAidAI</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -20,15 +80,38 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="@navClass("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="@navClass("Korisnici")" asp-area="" asp-controller="Korisnici" asp-action="Index">Korisnici</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="@navClass("Recepti")" asp-area="" asp-controller="Recepti" asp-action="Index">Recepti</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="@navClass("Kuharice")" asp-area="" asp-controller="Kuharice" asp-action="Index">Kuharice</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="@navClass("Home", "Privacy")" asp-area="" asp-controller="Home" asp-action="Privacy">Info</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
+
+        @if (!(string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase)))
+        {
+            <div class="container">
+                <nav aria-label="breadcrumb" class="breadcrumb-y2k-wrap">
+                    <ol class="breadcrumb breadcrumb-y2k mb-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a href="@sectionHref">@sectionLabel</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="@currentHref">@thirdLevelLabel</a></li>
+                    </ol>
+                </nav>
+            </div>
+        }
     </header>
     <div class="container">
         <main role="main" class="pb-3">
@@ -36,11 +119,6 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - KitchenAidAI - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -1,0 +1,22 @@
+@model KitchenAidAI.Models.User
+
+@{
+    ViewData["Title"] = "Profil korisnika";
+}
+
+<section class="hero-section">
+    <h1>@Model.username</h1>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: 420px; max-width: 100%;">
+        <h2>Profil</h2>
+        <p><strong>Email:</strong> @Model.email</p>
+        <p><strong>Preferencija:</strong> @Model.preferencijaPrehrane</p>
+        <div class="d-grid gap-3">
+            <a class="btn btn-y2k" asp-controller="Frizider" asp-action="Index" asp-route-userId="@Model.id">Otvori Frižider</a>
+            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Recepti" asp-action="Index">Preporučeni Recepti</a>
+            <a class="btn btn-y2k btn-y2k-tertiary" asp-controller="Korisnici" asp-action="Index">Nazad na korisnike</a>
+        </div>
+    </article>
+</div>

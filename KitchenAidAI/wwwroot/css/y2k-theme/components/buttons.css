@@ -1,0 +1,58 @@
+/* Y2K Theme - Buttons */
+.btn-y2k {
+    background-color: var(--primary-color);
+    color: var(--surface-color);
+    border: 3px solid var(--border-color);
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px var(--border-color);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-y2k:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--border-color);
+}
+
+.btn-y2k:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--border-color);
+}
+
+.btn-y2k-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    box-shadow: 4px 4px 0px var(--secondary-color);
+}
+
+.btn-y2k-secondary:hover {
+    box-shadow: 6px 6px 0px var(--secondary-color);
+}
+
+.btn-y2k-secondary:active {
+    box-shadow: 2px 2px 0px var(--secondary-color);
+}
+
+.btn-y2k-tertiary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 4px 4px 0px var(--accent-color);
+    color: #1d2a1d;
+}
+
+.btn-y2k-tertiary:hover {
+    box-shadow: 6px 6px 0px var(--accent-color);
+}
+
+.btn-y2k-tertiary:active {
+    box-shadow: 2px 2px 0px var(--accent-color);
+}
+
+.btn.btn-y2k-tertiary {
+    border-width: 3px;
+    font-weight: 800;
+}

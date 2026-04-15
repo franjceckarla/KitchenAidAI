@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bc6de8b0e7820e3102043464cea185b72e9277b2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e6aba63c254b256f99b90c0ff7dbeeff4faa1920")]
 [assembly: System.Reflection.AssemblyProductAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

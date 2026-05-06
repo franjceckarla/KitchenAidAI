@@ -38,8 +38,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Korisnici/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS29yaXNuaWNpXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Korisnici/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS29yaXNuaWNpXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Korisnici/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS29yaXNuaWNpXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Korisnici/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS29yaXNuaWNpXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Korisnici/Index.cshtml]
@@ -54,8 +66,32 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS3VoYXJpY2VcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Namirnice/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmFtaXJuaWNlXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Namirnice/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmFtaXJuaWNlXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Namirnice/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmFtaXJuaWNlXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Recepti/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVjZXB0aVxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Recepti/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVjZXB0aVxEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Recepti/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVjZXB0aVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Recepti/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVjZXB0aVxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/User/Desktop/.NET/KitchenAidAI/KitchenAidAI/Views/Recepti/Index.cshtml]

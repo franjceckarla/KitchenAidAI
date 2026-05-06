@@ -1,0 +1,39 @@
+@model KitchenAidAI.Models.Namirnica
+
+@{
+    ViewData["Title"] = "Uredi namirnicu";
+}
+
+<section class="hero-section">
+    <h1>Uredi namirnicu</h1>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: min(720px, 100%);">
+        <form asp-action="Edit" asp-route-id="@Model.id" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="friziderId" />
+            <div class="col-12">
+                <label asp-for="naziv" class="form-label">Naziv</label>
+                <input asp-for="naziv" class="form-control" />
+                <span asp-validation-for="naziv" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="kategorija" class="form-label">Kategorija</label>
+                <select asp-for="kategorija" class="form-select" asp-items="ViewBag.Kategorije"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="mjera" class="form-label">Mjera</label>
+                <select asp-for="mjera" class="form-select" asp-items="ViewBag.Mjere"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="kolicinaUFrizideru" class="form-label">Količina</label>
+                <input asp-for="kolicinaUFrizideru" class="form-control" type="number" step="0.1" />
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-y2k">Spremi promjene</button>
+                <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Frizider" asp-action="Index" asp-route-userId="@ViewBag.UserId">Natrag</a>
+            </div>
+        </form>
+    </article>
+</div>

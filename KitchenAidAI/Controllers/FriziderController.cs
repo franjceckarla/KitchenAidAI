@@ -1,15 +1,16 @@
-using KitchenAidAI.Helpers;
+using KitchenAidAI.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KitchenAidAI.Controllers
 {
     public class FriziderController : Controller
     {
-        private readonly MockDataService _mockData;
+        private readonly KitchenAidDbContext _dbContext;
 
-        public FriziderController(MockDataService mockData)
+        public FriziderController(KitchenAidDbContext dbContext)
         {
-            _mockData = mockData;
+            _dbContext = dbContext;
         }
 
         public IActionResult Index(int? userId)
@@ -21,10 +22,20 @@ namespace KitchenAidAI.Controllers
             }
 
             var targetUserId = userId.Value;
-            var user = _mockData.GetUserById(targetUserId);
+            var user = _dbContext.Users
+                .Include(currentUser => currentUser.frizider)
+                .ThenInclude(fridge => fridge!.namirnice)
+                .AsNoTracking()
+                .FirstOrDefault(currentUser => currentUser.id == targetUserId);
             if (user is null)
             {
                 return NotFound();
+            }
+
+            if (user.frizider is null)
+            {
+                TempData["Warning"] = "Korisnik još nema kreiran frižider.";
+                return RedirectToAction("Index", "Korisnici");
             }
 
             ViewBag.UserName = user.username;

@@ -11,6 +11,9 @@
 <div class="main-cta-section" style="align-items: stretch;">
     <article class="card-y2k" style="width: min(920px, 100%);">
         <h2>Namirnice</h2>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a class="btn btn-y2k" asp-controller="Namirnice" asp-action="Create" asp-route-friziderId="@Model.id">Dodaj namirnicu</a>
+        </div>
         @if (Model?.namirnice is null || !Model.namirnice.Any())
         {
             <p>Nema namirnica u frižideru.</p>
@@ -25,6 +28,7 @@
                             <th>Kategorija</th>
                             <th>Količina</th>
                             <th>Mjerna Jedinica</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,6 +39,10 @@
                                 <td>@item.kategorija</td>
                                 <td>@item.kolicinaUFrizideru</td>
                                 <td>@item.mjera</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-y2k-tertiary" asp-controller="Namirnice" asp-action="Edit" asp-route-id="@item.id">Uredi</a>
+                                    <a class="btn btn-sm btn-y2k-danger" asp-controller="Namirnice" asp-action="Delete" asp-route-id="@item.id">Obriši</a>
+                                </td>
                             </tr>
                         }
                     </tbody>

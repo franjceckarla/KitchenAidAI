@@ -1,5 +1,8 @@
-﻿namespace KitchenAidAI.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace KitchenAidAI.Models
 {
+    [Owned]
     public class NutritivnaVrijednost
     {
         public double kalorije { get; set; }

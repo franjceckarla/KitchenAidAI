@@ -1,0 +1,35 @@
+@model KitchenAidAI.Models.User
+
+@{
+    ViewData["Title"] = "Novi korisnik";
+}
+
+<section class="hero-section">
+    <h1>Novi korisnik</h1>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: min(720px, 100%);">
+        <form asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-12">
+                <label asp-for="username" class="form-label">Korisničko ime</label>
+                <input asp-for="username" class="form-control" />
+                <span asp-validation-for="username" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="email" class="form-label">Email</label>
+                <input asp-for="email" type="email" class="form-control" placeholder="primer@example.com" required />
+                <span asp-validation-for="email" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="preferencijaPrehrane" class="form-label">Preferencija prehrane</label>
+                <select asp-for="preferencijaPrehrane" class="form-select" asp-items="Html.GetEnumSelectList<KitchenAidAI.Models.Enums.PreferencijaPrehrane>()"></select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-y2k">Spremi</button>
+                <a class="btn btn-y2k btn-y2k-secondary" asp-action="Index">Natrag</a>
+            </div>
+        </form>
+    </article>
+</div>

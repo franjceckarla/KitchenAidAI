@@ -17,14 +17,23 @@
 }
 
 <div class="main-cta-section">
+    <article class="card-y2k cta-card">
+        <h2>Novi korisnik</h2>
+        <p>Kreiraj novi profil i automatski dodaj frižider i kuharicu.</p>
+        <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Create">Dodaj korisnika</a>
+    </article>
     @foreach (var user in Model)
     {
         <article class="card-y2k cta-card">
             <h2>@user.username</h2>
             <p>@user.email</p>
             <p>Preferencija: @user.preferencijaPrehrane</p>
-            <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Profil</a>
-            <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Frizider" asp-action="Index" asp-route-userId="@user.id">Frižider</a>
+            <div class="d-flex gap-2 flex-wrap">
+                <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Profil</a>
+                <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Frizider" asp-action="Index" asp-route-userId="@user.id">Frižider</a>
+                <a class="btn btn-y2k btn-y2k-tertiary" asp-controller="Korisnici" asp-action="Edit" asp-route-id="@user.id">Uredi</a>
+                <a class="btn btn-y2k btn-y2k-danger" asp-controller="Korisnici" asp-action="Delete" asp-route-id="@user.id">Obriši</a>
+            </div>
         </article>
     }
 </div>

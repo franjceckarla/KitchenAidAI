@@ -18,7 +18,6 @@ namespace KitchenAidAI.Helpers.MockData
                     email = "marko@example.com",
                     preferencijaPrehrane = PreferencijaPrehrane.Omnivorte,
                     frizider = fridges[1],
-                    kuharicaId = cookbooks[1].id,
                     kuharica = cookbooks[1]
                 },
                 new User
@@ -28,7 +27,6 @@ namespace KitchenAidAI.Helpers.MockData
                     email = "petra@example.com",
                     preferencijaPrehrane = PreferencijaPrehrane.Vegetarijanac,
                     frizider = fridges[2],
-                    kuharicaId = cookbooks[2].id,
                     kuharica = cookbooks[2]
                 },
                 new User
@@ -38,7 +36,6 @@ namespace KitchenAidAI.Helpers.MockData
                     email = "ana@example.com",
                     preferencijaPrehrane = PreferencijaPrehrane.Vegan,
                     frizider = fridges[3],
-                    kuharicaId = cookbooks[3].id,
                     kuharica = cookbooks[3]
                 }
             ];

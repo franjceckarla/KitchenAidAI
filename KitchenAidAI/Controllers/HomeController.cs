@@ -1,7 +1,8 @@
 using System.Diagnostics;
-using KitchenAidAI.Helpers;
+using KitchenAidAI.Data;
 using KitchenAidAI.Models;
 using KitchenAidAI.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KitchenAidAI.Controllers
@@ -9,19 +10,24 @@ namespace KitchenAidAI.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly MockDataService _mockData;
+        private readonly KitchenAidDbContext _dbContext;
 
-        public HomeController(ILogger<HomeController> logger, MockDataService mockData)
+        public HomeController(ILogger<HomeController> logger, KitchenAidDbContext dbContext)
         {
             _logger = logger;
-            _mockData = mockData;
+            _dbContext = dbContext;
         }
 
         public IActionResult Index()
         {
             var vm = new HomeDashboardViewModel
             {
-                Users = _mockData.GetUsers()
+                Users = _dbContext.Users
+                    .Include(user => user.frizider)
+                    .ThenInclude(fridge => fridge!.namirnice)
+                    .Include(user => user.kuharica)
+                    .AsNoTracking()
+                    .ToList()
             };
 
             return View(vm);

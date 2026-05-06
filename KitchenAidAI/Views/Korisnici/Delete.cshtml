@@ -1,0 +1,34 @@
+@model KitchenAidAI.Models.User
+
+@{
+    ViewData["Title"] = "Obriši korisnika";
+}
+
+<section class="hero-section">
+    <h1>Obriši korisnika</h1>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: min(720px, 100%);">
+        <div class="alert alert-warning" role="alert">
+            <strong>Upozorenje!</strong> Ova akcija ne može biti vraćena. Svi podaci korisnika će biti obrisani.
+        </div>
+        
+        <div class="row g-3">
+            <div class="col-12">
+                <p><strong>Korisničko ime:</strong> @Model.username</p>
+                <p><strong>Email:</strong> @Model.email</p>
+                <p><strong>Preferencija prehrane:</strong> @Model.preferencijaPrehrane</p>
+            </div>
+            <div class="col-12">
+                <p>Jeste li sigurni da želite obrisati korisnika <strong>@Model.username</strong>?</p>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <form asp-action="Delete" asp-route-id="@Model.id" method="post">
+                    <button type="submit" class="btn btn-y2k btn-y2k-danger">Potvrdi brisanje</button>
+                </form>
+                <a class="btn btn-y2k btn-y2k-secondary" asp-action="Index">Otkaži</a>
+            </div>
+        </div>
+    </article>
+</div>

@@ -3,6 +3,8 @@
     background-color: rgba(255, 182, 193, 0.8); /* Semi-transparent light pink */
     backdrop-filter: blur(5px);
     border-bottom: 3px solid var(--y2k-pink-hot);
+    position: relative;
+    z-index: 1060;
 }
 
 .navbar-y2k .navbar-brand {
@@ -57,4 +59,69 @@
 
 .breadcrumb-y2k .breadcrumb-item.active {
     color: #5a3551;
+}
+
+/* Y2K Theme - Dropdown Menu */
+.dropdown-menu {
+    background-color: var(--y2k-pink-light);
+    border: 3px solid var(--y2k-pink-hot);
+    border-radius: 15px;
+    box-shadow: 8px 8px 0px var(--shadow-color);
+    z-index: 1070;
+    padding: 10px 0;
+    position: absolute;
+    animation: slideDown 0.3s ease-out;
+}
+
+.dropdown-menu .dropdown-item {
+    color: var(--text-color);
+    font-weight: bold;
+    padding: 12px 20px;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+    margin: 0 5px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: var(--y2k-pink-hot);
+    color: var(--surface-color);
+    transform: translateX(5px);
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+.dropdown-toggle {
+    position: relative;
+    padding-right: 25px !important;
+}
+
+.dropdown-toggle::after {
+    content: '';
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-color);
+    transition: transform 0.3s ease;
+}
+
+.dropdown-toggle[aria-expanded="true"]::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

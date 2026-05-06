@@ -1,0 +1,42 @@
+@model KitchenAidAI.Models.Recept
+
+@{
+    ViewData["Title"] = "Novi recept";
+}
+
+<section class="hero-section">
+    <h1>Novi recept</h1>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: min(720px, 100%);">
+        <form asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-12">
+                <label asp-for="naziv" class="form-label">Naziv</label>
+                <input asp-for="naziv" class="form-control" />
+                <span asp-validation-for="naziv" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="opis" class="form-label">Opis</label>
+                <textarea asp-for="opis" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="vrijemeKuhanja" class="form-label">Vrijeme kuhanja</label>
+                <input asp-for="vrijemeKuhanja" class="form-control" type="number" step="0.1" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="tezina" class="form-label">Težina</label>
+                <select asp-for="tezina" class="form-select" asp-items="Html.GetEnumSelectList<KitchenAidAI.Models.Enums.TezinaRecepta>()"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="brojPorcija" class="form-label">Broj porcija</label>
+                <input asp-for="brojPorcija" class="form-control" type="number" />
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-y2k">Spremi</button>
+                <a class="btn btn-y2k btn-y2k-secondary" asp-action="Index">Natrag</a>
+            </div>
+        </form>
+    </article>
+</div>

@@ -52,6 +52,22 @@
     box-shadow: 2px 2px 0px var(--accent-color);
 }
 
+.btn-y2k-danger {
+    background-color: #ff3b3b;
+    border-color: #cc0000;
+    box-shadow: 4px 4px 0px #cc0000;
+    color: white;
+}
+
+.btn-y2k-danger:hover {
+    box-shadow: 6px 6px 0px #cc0000;
+    color: white;
+}
+
+.btn-y2k-danger:active {
+    box-shadow: 2px 2px 0px #cc0000;
+}
+
 .btn.btn-y2k-tertiary {
     border-width: 3px;
     font-weight: 800;

@@ -1,0 +1,76 @@
+@model IReadOnlyList<KitchenAidAI.Models.User>
+
+@{
+    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
+}
+
+@if (Model is null || !Model.Any())
+{
+    <p>Nema kuharica za prikaz.</p>
+}
+else
+{
+    if (isAdmin)
+    {
+        <div class="table-responsive y2k-table-wrap">
+            <table class="table table-hover mb-0 align-middle y2k-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Kuharica (Naziv)</th>
+                        <th scope="col">Vlasnik (Korisnik)</th>
+                        <th scope="col">Spremljeni recepti</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end y2k-col-actions">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        var cookbook = user.kuharica;
+                        var recipeCount = cookbook?.receptKuharice?.Count ?? 0;
+                        <tr class="y2k-row-link" data-row-href="@Url.Action("Details", "Kuharice", new { userId = user.id })">
+                            <td><strong>@(cookbook?.naziv ?? "Kuharica")</strong></td>
+                            <td>@user.username</td>
+                            <td>@recipeCount</td>
+                            <td>
+                                @if (user.isDeleted || (cookbook?.isDeleted ?? false))
+                                {
+                                    <span class="badge bg-danger">Obrisano</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Aktivno</span>
+                                }
+                            </td>
+                            <td class="text-end y2k-col-actions">
+                                <div class="y2k-actions">
+                                    <a class="btn btn-sm btn-primary" asp-controller="Kuharice" asp-action="Details" asp-route-userId="@user.id">Otvori kuharicu</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var user in Model)
+            {
+                var cookbook = user.kuharica;
+                var recipeCount = cookbook?.receptKuharice?.Count ?? 0;
+                if (cookbook?.receptKuharice is not null)
+                {
+                    recipeCount = cookbook.receptKuharice.Count(join => !join.isDeleted && !(join.recept?.isDeleted ?? false));
+                }
+                <article class="card-y2k cta-card">
+                    <h2>@(cookbook?.naziv ?? "Kuharica")</h2>
+                    <p><strong>Korisnik:</strong> @user.username</p>
+                    <p><strong>Spremljeni recepti:</strong> @recipeCount</p>
+                    <a class="btn btn-y2k" asp-controller="Kuharice" asp-action="Details" asp-route-userId="@user.id">Otvori kuharicu</a>
+                </article>
+            }
+        </div>
+    }
+}

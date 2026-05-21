@@ -42,6 +42,72 @@ textarea:focus {
     box-shadow: 0 0 10px var(--y2k-cyan-blue);
 }
 
+.field-validation-error,
+.validation-summary-errors {
+    display: block;
+    margin-top: 6px;
+    color: var(--y2k-pink-hot);
+    font-weight: 700;
+    text-shadow: 1px 1px 0 var(--y2k-shadow-color);
+}
+
+.validation-summary-errors {
+    padding: 10px 14px;
+    border: 2px dashed var(--y2k-pink-hot);
+    border-radius: 12px;
+    background: rgba(255, 20, 147, 0.12);
+}
+
+.input-validation-error {
+    border-color: var(--y2k-pink-hot);
+    box-shadow: 0 0 8px rgba(255, 20, 147, 0.5);
+}
+
+.custom-datetime__inputs {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 12px;
+}
+
+.custom-datetime__time {
+    text-align: center;
+}
+
+.custom-datetime[data-include-time="false"] .custom-datetime__inputs {
+    grid-template-columns: 1fr;
+}
+
+.xdsoft_datetimepicker {
+    border: 3px solid var(--y2k-pink-hot) !important;
+    border-radius: 16px !important;
+    box-shadow: 10px 10px 0 var(--y2k-shadow-color) !important;
+    font-family: 'Comic Sans MS', cursive, sans-serif !important;
+    background: var(--surface-color) !important;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td,
+.xdsoft_datetimepicker .xdsoft_time_box > div > div {
+    border-radius: 10px;
+}
+
+.xdsoft_datetimepicker .xdsoft_current,
+.xdsoft_datetimepicker .xdsoft_calendar td.xdsoft_current,
+.xdsoft_datetimepicker .xdsoft_time_box > div > div.xdsoft_current {
+    background: var(--y2k-pink-hot) !important;
+    color: var(--surface-color) !important;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td:hover,
+.xdsoft_datetimepicker .xdsoft_time_box > div > div:hover {
+    background: rgba(255, 20, 147, 0.25) !important;
+}
+
+.xdsoft_datetimepicker .xdsoft_prev,
+.xdsoft_datetimepicker .xdsoft_next,
+.xdsoft_datetimepicker .xdsoft_today_button {
+    color: var(--y2k-pink-hot) !important;
+}
+
 /* Specific styling for select dropdown arrows */
 select {
     appearance: none;
@@ -51,4 +117,45 @@ select {
     background-repeat: no-repeat;
     background-position: right 15px center;
     background-size: 16px;
+}
+
+.autocomplete {
+    position: relative;
+}
+
+.autocomplete-menu {
+    position: absolute;
+    z-index: 1080;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 3px solid var(--y2k-pink-hot);
+    border-radius: 14px;
+    box-shadow: 8px 8px 0 var(--y2k-shadow-color);
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 6px;
+    display: none;
+}
+
+.autocomplete-menu.is-open {
+    display: block;
+}
+
+.autocomplete-item {
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.is-active {
+    background: rgba(255, 20, 147, 0.2);
 }

@@ -18,6 +18,7 @@ namespace KitchenAidAI.Data
         public DbSet<KorakRecepta> KoraciRecepta => Set<KorakRecepta>();
         public DbSet<ReceptKuharica> ReceptKuharice => Set<ReceptKuharica>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+        public DbSet<Country> Countries => Set<Country>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,7 +28,12 @@ namespace KitchenAidAI.Data
             {
                 entity.HasKey(e => e.id);
                 entity.Property(e => e.username).HasMaxLength(100);
+                entity.Property(e => e.ime).HasMaxLength(120);
+                entity.Property(e => e.prezime).HasMaxLength(120);
+                entity.Property(e => e.datumRodenja).HasColumnType("date");
+                entity.Property(e => e.zemlja).HasMaxLength(120);
                 entity.Property(e => e.email).HasMaxLength(200);
+                entity.Property(e => e.passwordHash).HasMaxLength(2000);
 
                 entity.HasOne(e => e.frizider)
                     .WithOne(e => e.user)
@@ -103,6 +109,13 @@ namespace KitchenAidAI.Data
                 entity.HasKey(e => e.id);
                 entity.Property(e => e.message).HasMaxLength(2000);
                 entity.Property(e => e.response).HasMaxLength(2000);
+            });
+
+            modelBuilder.Entity<Country>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.naziv).HasMaxLength(120).IsRequired();
+                entity.HasIndex(e => e.naziv).IsUnique();
             });
         }
     }

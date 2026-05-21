@@ -1,0 +1,80 @@
+@model IReadOnlyList<KitchenAidAI.Models.Recept>
+
+@{
+    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
+}
+
+@if (Model is null || !Model.Any())
+{
+    <p>Nema recepata za prikaz.</p>
+}
+else
+{
+    if (isAdmin)
+    {
+        <div class="table-responsive y2k-table-wrap">
+            <table class="table table-hover mb-0 align-middle y2k-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="y2k-col-id">ID</th>
+                        <th scope="col">Naziv</th>
+                        <th scope="col">Kratki opis</th>
+                        <th scope="col" class="text-nowrap">Vrijeme (min)</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end y2k-col-actions">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var recipe in Model)
+                    {
+                        <tr class="y2k-row-link" data-row-href="@Url.Action("Details", "Recepti", new { id = recipe.id })">
+                            <td class="y2k-col-id">@recipe.id</td>
+                            <td><strong>@recipe.naziv</strong></td>
+                            <td class="text-truncate" style="max-width: 200px;">@recipe.opis</td>
+                            <td class="text-nowrap">@recipe.vrijemeKuhanja</td>
+                            <td>
+                                @if (recipe.isDeleted) { <span class="badge bg-danger">Obrisano</span> }
+                                else { <span class="badge bg-success">Aktivno</span> }
+                            </td>
+                            <td class="text-end y2k-col-actions">
+                                <div class="y2k-actions">
+                                    <a class="btn btn-sm btn-primary" asp-controller="Recepti" asp-action="Details" asp-route-id="@recipe.id">Pregled</a>
+                                    <a class="btn btn-sm btn-info" asp-controller="Recepti" asp-action="Edit" asp-route-id="@recipe.id">Uređivanje</a>
+                                @if (recipe.isDeleted)
+                                {
+                                    <form asp-controller="Recepti" asp-action="Restore" asp-route-id="@recipe.id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success">Vrati</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-danger" asp-controller="Recepti" asp-action="Delete" asp-route-id="@recipe.id">Obriši</a>
+                                }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var recipe in Model)
+            {
+                <article class="card-y2k cta-card recipe-card">
+                    <h2>@recipe.naziv</h2>
+                    <p>@recipe.opis</p>
+                    <p>@recipe.vrijemeKuhanja min · @recipe.tezina</p>
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        <a class="btn btn-y2k" asp-controller="Recepti" asp-action="Details" asp-route-id="@recipe.id">Detalji</a>
+                        <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Recepti" asp-action="Edit" asp-route-id="@recipe.id">Uredi</a>
+                        <a class="btn btn-y2k btn-y2k-danger" asp-controller="Recepti" asp-action="Delete" asp-route-id="@recipe.id">Obriši</a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+}

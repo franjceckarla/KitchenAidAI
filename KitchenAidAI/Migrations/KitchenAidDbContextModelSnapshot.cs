@@ -25,8 +25,12 @@ namespace KitchenAidAI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("datumKreiranja")
-                        .HasColumnType("datetime(6)");
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("kreirano")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("datumKreiranja");
 
                     b.Property<string>("message")
                         .HasMaxLength(2000)
@@ -49,6 +53,25 @@ namespace KitchenAidAI.Migrations
                     b.ToTable("ChatMessages");
                 });
 
+            modelBuilder.Entity("KitchenAidAI.Models.Country", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("naziv")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("naziv")
+                        .IsUnique();
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("KitchenAidAI.Models.Frizider", b =>
                 {
                     b.Property<int>("id")
@@ -56,6 +79,12 @@ namespace KitchenAidAI.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("azurirano")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("kreirano")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int?>("userId")
@@ -74,6 +103,12 @@ namespace KitchenAidAI.Migrations
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("kreirano")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("opis")
                         .HasMaxLength(500)
@@ -100,6 +135,9 @@ namespace KitchenAidAI.Migrations
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("kreirano")
                         .HasColumnType("datetime(6)");
@@ -128,16 +166,23 @@ namespace KitchenAidAI.Migrations
                     b.Property<int>("friziderId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("kategorija")
                         .HasColumnType("int");
 
                     b.Property<double>("kolicinaUFrizideru")
                         .HasColumnType("double");
 
+                    b.Property<DateTime>("kreirano")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("mjera")
                         .HasColumnType("int");
 
                     b.Property<string>("naziv")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
@@ -157,10 +202,15 @@ namespace KitchenAidAI.Migrations
                     b.Property<int>("brojPorcija")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("datumKreiranja")
-                        .HasColumnType("datetime(6)");
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("kreirano")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("datumKreiranja");
 
                     b.Property<string>("naziv")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
@@ -185,6 +235,12 @@ namespace KitchenAidAI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("kreirano")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("kuharicaId")
                         .HasColumnType("int");
 
@@ -207,19 +263,46 @@ namespace KitchenAidAI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("datumRodenja")
+                        .HasColumnType("date");
+
                     b.Property<string>("email")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
+
+                    b.Property<string>("ime")
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<bool>("isAdmin")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("kreirano")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("passwordHash")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
                     b.Property<int>("preferencijaPrehrane")
                         .HasColumnType("int");
 
+                    b.Property<string>("prezime")
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
                     b.Property<string>("username")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("zemlja")
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
 
                     b.HasKey("id");
 

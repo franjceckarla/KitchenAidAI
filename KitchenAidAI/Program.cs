@@ -1,12 +1,20 @@
 using KitchenAidAI.Data;
 using KitchenAidAI.Helpers;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromHours(8);
+});
 
 var connectionString = builder.Configuration.GetConnectionString("KitchenAidConnection")
     ?? throw new InvalidOperationException("Connection string 'KitchenAidConnection' was not found.");
@@ -21,7 +29,17 @@ var app = builder.Build();
 // Configure the HTTP request pipeline (development-only setup).
 app.UseStaticFiles();
 
+var supportedCultures = new[] { "hr-HR", "en-US", "en-GB", "de-DE", "fr-FR", "es-ES" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("hr-HR")
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
+
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 

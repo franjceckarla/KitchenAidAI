@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Detalji recepta";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
 }
 
 <section class="hero-section">
@@ -11,6 +12,17 @@
 <div class="main-cta-section">
     <article class="card-y2k cta-card" style="width: 460px; max-width: 100%;">
         <h2>Informacije</h2>
+        @if (isAdmin)
+        {
+            if (Model.isDeleted)
+            {
+                <div class="alert alert-danger" role="alert">Recept je označen kao obrisan.</div>
+            }
+            else
+            {
+                <div class="alert alert-success" role="alert">Recept je aktivan.</div>
+            }
+        }
         <p>@Model.opis</p>
         <p><strong>Vrijeme:</strong> @Model.vrijemeKuhanja min</p>
         <p><strong>Težina:</strong> @Model.tezina</p>

@@ -33,6 +33,17 @@
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
 }
 
+.navbar-y2k .nav-rounded .nav-link {
+    border-radius: 999px;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.navbar-y2k .nav-rounded .nav-link:hover {
+    background-color: var(--y2k-pink-hot);
+    color: var(--surface-color);
+}
+
 .breadcrumb-y2k-wrap {
     margin-top: -6px;
     margin-bottom: 10px;

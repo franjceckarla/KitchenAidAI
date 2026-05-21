@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,12 +15,20 @@
     <link rel="stylesheet" href="~/css/y2k-theme/components/forms.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/y2k-theme/animations.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/y2k-theme/layouts/home.css" asp-append-version="true">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" />
 </head>
 <body>
     @{
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
         var pageTitle = ViewData["Title"]?.ToString() ?? "";
+        var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+        var isLoggedIn = KitchenAidAI.Helpers.AuthSession.GetUserId(Context).HasValue;
+        var chefUsername = KitchenAidAI.Helpers.AuthSession.GetUsername(Context);
+        if (string.IsNullOrWhiteSpace(chefUsername))
+        {
+            chefUsername = "Korisnice";
+        }
 
         var sectionLabel = currentController switch
         {
@@ -44,6 +52,19 @@
             "Namirnice" => "Frizider",
             "Kuharice" => "Kuharice",
             _ => "Home"
+        };
+
+        var chefContext = currentController switch
+        {
+            "Home" when string.Equals(currentAction, "Chat", StringComparison.OrdinalIgnoreCase) => "chat",
+            "Home" when string.Equals(currentAction, "Privacy", StringComparison.OrdinalIgnoreCase) => "info",
+            "Home" => "home",
+            "Recepti" => "recepti",
+            "Frizider" => "frizider",
+            "Namirnice" => "namirnice",
+            "Kuharice" => "kuharice",
+            "Korisnici" => "korisnici",
+            _ => "sekcija"
         };
 
         var sectionAction = currentController switch
@@ -81,35 +102,57 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 @(isAdmin ? "" : "nav-rounded")">
                         <li class="nav-item">
                             <a class="@navClass("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="@navClass("Korisnici")" asp-area="" asp-controller="Korisnici" asp-action="Index">Korisnici</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="@navClass("Recepti")" asp-area="" asp-controller="Recepti" asp-action="Index">Recepti</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="@navClass("Kuharice")" asp-area="" asp-controller="Kuharice" asp-action="Index">Kuharice</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="manageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Upravljanje
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="manageDropdown">
-                                <li><a class="dropdown-item" asp-controller="Korisnici" asp-action="Create">Novi korisnik</a></li>
-                                <li><a class="dropdown-item" asp-controller="Korisnici" asp-action="Index">Uredi korisnike</a></li>
-                                <li><a class="dropdown-item" asp-controller="Recepti" asp-action="Create">Novi recept</a></li>
-                                <li><a class="dropdown-item" asp-controller="Recepti" asp-action="Index">Uredi recepte</a></li>
-                                <li><a class="dropdown-item" asp-controller="Korisnici" asp-action="Index">Namirnice i frižideri</a></li>
-                            </ul>
-                        </li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="@navClass("Korisnici")" asp-area="" asp-controller="Korisnici" asp-action="Index">Korisnici</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@navClass("Recepti")" asp-area="" asp-controller="Recepti" asp-action="Index">Recepti</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@navClass("Kuharice")" asp-area="" asp-controller="Kuharice" asp-action="Index">Kuharice</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="manageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Upravljanje
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="manageDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Korisnici" asp-action="Create">Novi korisnik</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Korisnici" asp-action="Index">Uredi korisnike</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Recepti" asp-action="Create">Novi recept</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Recepti" asp-action="Index">Uredi recepte</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Korisnici" asp-action="Index">Namirnice i frižideri</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="@navClass("Recepti")" asp-area="" asp-controller="Recepti" asp-action="Index">Recepti</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@navClass("Kuharice")" asp-area="" asp-controller="Kuharice" asp-action="Index">Kuharice</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@navClass("Home", "Chat")" asp-area="" asp-controller="Home" asp-action="Chat">Asistent</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="@navClass("Home", "Privacy")" asp-area="" asp-controller="Home" asp-action="Privacy">Info</a>
                         </li>
                     </ul>
+                    @if (isLoggedIn)
+                    {
+                        <form asp-controller="Auth" asp-action="Logout" method="post" class="d-flex align-items-center">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-y2k btn-y2k-secondary">Odjava</button>
+                        </form>
+                    }
                 </div>
             </div>
         </nav>
@@ -134,8 +177,72 @@
         </main>
     </div>
 
+    <div id="chef-greeting-wrapper"
+         data-chef-username="@chefUsername"
+         data-chef-autostart="@((isLoggedIn && (!isAdmin || (string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase) && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase)))) ? "true" : "false")"
+         data-chef-autohide="6000"
+         data-chef-context="@chefContext"
+         data-chef-is-admin="@(isAdmin ? "true" : "false")"
+         aria-live="polite">
+        <div id="chef-speech-bubble">
+            <button id="chef-close-btn" type="button" title="Zatvori">×</button>
+            <p>Dobro dosli, <strong id="chef-username">@chefUsername</strong>!</p>
+            <p class="chef-sub" id="chef-context-message">Lijepo je sto ste ovdje. Sto vas ceka danas?</p>
+        </div>
+        <div id="chef-body-anim" aria-label="Kuhar koji mase rukom">
+            <svg width="140" height="200" viewBox="0 0 140 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+                <rect x="45" y="148" width="20" height="40" rx="8" fill="#3B4DB0" />
+                <rect x="75" y="148" width="20" height="40" rx="8" fill="#3B4DB0" />
+                <rect x="40" y="178" width="26" height="12" rx="6" fill="#2C3A8C" />
+                <rect x="74" y="178" width="26" height="12" rx="6" fill="#2C3A8C" />
+                <rect x="30" y="95" width="80" height="60" rx="14" fill="#ffffff" stroke="#D3D1C7" stroke-width="1" />
+                <circle cx="70" cy="112" r="3" fill="#D3D1C7" />
+                <circle cx="70" cy="124" r="3" fill="#D3D1C7" />
+                <circle cx="70" cy="136" r="3" fill="#D3D1C7" />
+                <rect x="52" y="108" width="36" height="46" rx="6" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5" />
+                <g transform="rotate(-20 30 110)">
+                    <rect x="18" y="98" width="18" height="32" rx="9" fill="#ffffff" stroke="#D3D1C7" stroke-width="1" />
+                    <rect x="22" y="126" width="10" height="20" rx="5" fill="#f5c27a" />
+                    <ellipse cx="27" cy="148" rx="7" ry="5" fill="#888780" />
+                    <rect x="26" y="130" width="2" height="20" rx="1" fill="#888780" />
+                </g>
+                <g id="chef-arm-wave">
+                    <rect x="92" y="98" width="18" height="34" rx="9" fill="#ffffff" stroke="#D3D1C7" stroke-width="1" />
+                    <ellipse cx="101" cy="133" rx="10" ry="8" fill="#f5c27a" />
+                    <rect x="96" y="124" width="6" height="12" rx="3" fill="#f5c27a" />
+                    <rect x="103" y="122" width="6" height="13" rx="3" fill="#f5c27a" />
+                    <rect x="110" y="125" width="5" height="11" rx="2.5" fill="#f5c27a" />
+                    <rect x="93" y="127" width="5" height="9" rx="2.5" fill="#f5c27a" />
+                </g>
+                <rect x="60" y="83" width="20" height="16" rx="8" fill="#f5c27a" />
+                <ellipse cx="70" cy="68" rx="30" ry="28" fill="#f5c27a" />
+                <ellipse cx="50" cy="74" rx="8" ry="5" fill="#f5a07a" opacity="0.35" />
+                <ellipse cx="90" cy="74" rx="8" ry="5" fill="#f5a07a" opacity="0.35" />
+                <path d="M60 76 Q66 80 70 77 Q74 80 80 76" stroke="#5F4022" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                <path d="M58 82 Q70 92 82 82" stroke="#5F4022" stroke-width="2" fill="none" stroke-linecap="round" />
+                <g id="chef-eyes">
+                    <ellipse cx="58" cy="62" rx="5" ry="6" fill="#ffffff" />
+                    <ellipse cx="82" cy="62" rx="5" ry="6" fill="#ffffff" />
+                    <circle cx="59" cy="63" r="3.5" fill="#333333" />
+                    <circle cx="83" cy="63" r="3.5" fill="#333333" />
+                    <circle cx="60" cy="61" r="1" fill="#ffffff" />
+                    <circle cx="84" cy="61" r="1" fill="#ffffff" />
+                </g>
+                <path d="M53 56 Q58 53 63 56" stroke="#5F4022" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                <path d="M77 56 Q82 53 87 56" stroke="#5F4022" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                <ellipse cx="70" cy="44" rx="28" ry="6" fill="#ffffff" stroke="#D3D1C7" stroke-width="0.5" />
+                <rect x="48" y="24" width="44" height="24" rx="6" fill="#ffffff" stroke="#D3D1C7" stroke-width="0.5" />
+                <path d="M54 24 Q58 14 62 24" stroke="#D3D1C7" stroke-width="0.8" fill="none" />
+                <path d="M64 24 Q68 12 72 24" stroke="#D3D1C7" stroke-width="0.8" fill="none" />
+                <path d="M74 24 Q78 14 82 24" stroke="#D3D1C7" stroke-width="0.8" fill="none" />
+            </svg>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

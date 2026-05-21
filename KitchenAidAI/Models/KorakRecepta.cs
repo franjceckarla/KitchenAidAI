@@ -17,6 +17,13 @@ namespace KitchenAidAI.Models
         public string? opis { get; set; }
         public double trajanje { get; set; }
 
-        public KorakRecepta() { }
+        public DateTime kreirano { get; set; }
+
+        public bool isDeleted { get; set; }
+
+        public KorakRecepta()
+        {
+            kreirano = DateTime.Now;
+        }
     }
 }

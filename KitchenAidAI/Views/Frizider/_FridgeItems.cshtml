@@ -1,0 +1,60 @@
+@model IReadOnlyList<KitchenAidAI.Models.Namirnica>
+
+@{
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+}
+
+@if (Model is null || !Model.Any())
+{
+    <p>Nema namirnica u frižideru.</p>
+}
+else
+{
+    <div class="table-responsive y2k-table-wrap">
+        <table class="table align-middle mb-0 y2k-table">
+            <thead>
+                <tr>
+                    <th>Naziv</th>
+                    <th>Kategorija</th>
+                    <th>Količina</th>
+                    <th>Mjerna jedinica</th>
+                    @if (isAdmin)
+                    {
+                        <th>Status</th>
+                    }
+                    <th class="text-end y2k-col-actions"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="y2k-row-link" data-row-href="@Url.Action("Edit", "Namirnice", new { id = item.id })">
+                        <td>@item.naziv</td>
+                        <td>@item.kategorija</td>
+                        <td>@item.kolicinaUFrizideru</td>
+                        <td>@item.mjera</td>
+                        @if (isAdmin)
+                        {
+                            <td>
+                                @if (item.isDeleted)
+                                {
+                                    <span class="badge bg-danger">Obrisano</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Aktivno</span>
+                                }
+                            </td>
+                        }
+                        <td class="text-end y2k-col-actions">
+                            <div class="y2k-actions">
+                                <a class="btn btn-sm btn-y2k-tertiary" asp-controller="Namirnice" asp-action="Edit" asp-route-id="@item.id">Uredi</a>
+                                <a class="btn btn-sm btn-y2k-danger" asp-controller="Namirnice" asp-action="Delete" asp-route-id="@item.id">Obriši</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -27,3 +27,19 @@ body {
     linear-gradient(rgba(253, 240, 245, 0.35), rgba(253, 240, 245, 0.35)),
     url('../images/y2k-kitchen/background.png');
 }
+
+.y2k-row-link {
+  cursor: pointer;
+}
+
+.login-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.login-shell {
+  width: min(680px, 100%);
+}

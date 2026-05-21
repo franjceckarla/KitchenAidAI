@@ -19,6 +19,8 @@ namespace KitchenAidAI.Models
         public virtual ICollection<ReceptKuharica> receptKuharice { get; set; }
         public DateTime kreirano { get; set; }
 
+        public bool isDeleted { get; set; }
+
         public Kuharica()
         {
             kreirano = DateTime.Now;

@@ -1,0 +1,32 @@
+@{
+    var fieldName = ViewData["FieldName"]?.ToString() ?? string.Empty;
+    var label = ViewData["Label"]?.ToString() ?? fieldName;
+    var includeTime = ViewData["IncludeTime"] as bool? ?? true;
+    var value = ViewData["Value"] as DateTime?;
+    var idBase = fieldName.Replace(".", "_");
+    var isoValue = value.HasValue ? value.Value.ToString("yyyy-MM-ddTHH:mm") : string.Empty;
+    var placeholder = includeTime ? "dd.MM.yyyy HH:mm" : "dd.MM.yyyy";
+    var metadata = ViewData.ModelMetadata.Properties.FirstOrDefault(property => property.PropertyName == fieldName);
+    var inputAttributes = new Dictionary<string, object>
+    {
+        ["class"] = "form-control datetimepicker-input",
+        ["id"] = idBase,
+        ["autocomplete"] = "off",
+        ["data-include-time"] = includeTime ? "true" : "false",
+        ["data-value"] = isoValue,
+        ["placeholder"] = placeholder
+    };
+
+    if (metadata?.IsRequired == true)
+    {
+        var displayName = metadata.GetDisplayName() ?? label;
+        inputAttributes["data-val"] = "true";
+        inputAttributes["data-val-required"] = $"Polje {displayName} je obavezno.";
+        inputAttributes["data-val-date"] = "Unesite ispravan datum.";
+    }
+}
+
+<div class="custom-datetime" data-include-time="@(includeTime ? "true" : "false")">
+    <label class="form-label" for="@idBase">@label</label>
+    @Html.TextBox(fieldName, string.Empty, inputAttributes)
+</div>

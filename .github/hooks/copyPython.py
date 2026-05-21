@@ -2,8 +2,8 @@ import sys
 from datetime import datetime
 
 log_file = r"C:\Users\User\Desktop\.NET\KitchenAidAI\.github\hooks\agentLog.txt"
-output_file = r"C:\Users\User\Desktop\.NET\KitchenAidAI\lab3\agentLog3.txt"
-start_date = "2025-05-05"
+output_file = r"C:\Users\User\Desktop\.NET\KitchenAidAI\lab4\agentLog4.txt"
+start_date = "2025-05-17"
 
 target_date = datetime.strptime(start_date, "%Y-%m-%d")
 

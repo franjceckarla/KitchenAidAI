@@ -1,0 +1,36 @@
+@model KitchenAidAI.Models.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Prijava";
+    Layout = "_LayoutLogin";
+}
+
+<section class="hero-section">
+    <h1>Prijava</h1>
+    <p class="lead">Unesite korisničko ime i lozinku za nastavak.</p>
+</section>
+
+<div class="main-cta-section">
+    <article class="card-y2k cta-card" style="width: min(420px, 100%);">
+        <form asp-action="Login" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-12">
+                <label asp-for="Username" class="form-label">Korisničko ime</label>
+                <input asp-for="Username" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Password" class="form-label">Lozinka</label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-y2k">Prijavi se</button>
+                <a asp-controller="Auth" asp-action="Register" class="btn btn-y2k btn-y2k-secondary">Registracija</a>
+            </div>
+        </form>
+    </article>
+</div>

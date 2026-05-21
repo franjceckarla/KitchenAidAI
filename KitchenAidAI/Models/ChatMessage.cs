@@ -16,9 +16,12 @@ namespace KitchenAidAI.Models
 
         public string? message { get; set; }
         public string? response { get; set; }
-        public DateTime datumKreiranja { get; set; }
+        [Column("datumKreiranja")]
+        public DateTime kreirano { get; set; }
         public TipOdgovora tip { get; set; }
 
-        public ChatMessage() { datumKreiranja = DateTime.Now; }
+        public bool isDeleted { get; set; }
+
+        public ChatMessage() { kreirano = DateTime.Now; }
     }
 }

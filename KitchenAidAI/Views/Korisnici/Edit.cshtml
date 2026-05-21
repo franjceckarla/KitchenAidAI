@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Uredi korisnika";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
 }
 
 <section class="hero-section">
@@ -17,6 +18,28 @@
                 <input asp-for="username" class="form-control" />
                 <span asp-validation-for="username" class="text-danger"></span>
             </div>
+            
+            @if (isAdmin)
+            {
+                <div class="col-12 border border-2 border-warning p-3 rounded" style="background-color: var(--y2k-purple); color: white;">
+                    <h4 class="h5 mb-3">Admin kontrole</h4>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isAdminCheckbox" name="isAdminCheckbox" value="true" @(Model.isAdmin ? "checked" : "") />
+                        <label class="form-check-label" for="isAdminCheckbox">Značajka Admina</label>
+                    </div>
+                    <div>
+                        <label for="newPassword" class="form-label">Nova lozinka (ostavite prazno ako ne mijenjate)</label>
+                        <input type="text" class="form-control" id="newPassword" name="newPassword" />
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-12">
+                    <small class="text-muted">Promjena korisničkog imena mijenja i lozinku u vrijednost novog korisničkog imena.</small>
+                </div>
+            }
+
             <div class="col-12">
                 <label asp-for="email" class="form-label">Email</label>
                 <input asp-for="email" type="email" class="form-control" placeholder="primer@example.com" required />

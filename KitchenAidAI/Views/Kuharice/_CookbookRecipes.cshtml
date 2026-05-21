@@ -1,0 +1,60 @@
+@model IReadOnlyList<KitchenAidAI.Models.ReceptKuharica>
+
+@{
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+}
+
+@if (Model is null || !Model.Any())
+{
+    <p>U ovoj kuharici nema spremljenih recepata.</p>
+}
+else
+{
+    <div class="table-responsive y2k-table-wrap">
+        <table class="table align-middle mb-0 y2k-table">
+            <thead>
+                <tr>
+                    <th>Naziv</th>
+                    <th>Opis</th>
+                    <th>Vrijeme</th>
+                    @if (isAdmin)
+                    {
+                        <th>Status</th>
+                    }
+                    <th class="text-end y2k-col-actions"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="@(item.recept is not null ? "y2k-row-link" : string.Empty)" data-row-href="@(item.recept is not null ? Url.Action("Details", "Recepti", new { id = item.recept.id }) : null)">
+                        <td>@item.recept?.naziv</td>
+                        <td>@item.recept?.opis</td>
+                        <td>@item.recept?.vrijemeKuhanja min</td>
+                        @if (isAdmin)
+                        {
+                            <td>
+                                @if (item.isDeleted || (item.recept?.isDeleted ?? false))
+                                {
+                                    <span class="badge bg-danger">Obrisano</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Aktivno</span>
+                                }
+                            </td>
+                        }
+                        <td class="text-end y2k-col-actions">
+                            @if (item.recept is not null)
+                            {
+                                <div class="y2k-actions">
+                                    <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Recepti" asp-action="Details" asp-route-id="@item.recept.id">Detalji</a>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

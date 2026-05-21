@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25dc133fa2566e040d294270a6a4d39a51f5adb2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e55a30604d8bcfabb2c06c1802f59ed426da9416")]
 [assembly: System.Reflection.AssemblyProductAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

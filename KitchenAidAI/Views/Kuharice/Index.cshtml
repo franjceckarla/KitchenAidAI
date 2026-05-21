@@ -9,16 +9,22 @@
     <p class="lead">Odaberi korisnika i otvori njegovu spremljenu kuharicu.</p>
 </section>
 
-<div class="main-cta-section">
-    @foreach (var user in Model)
-    {
-        var cookbook = user.kuharica;
-        var recipeCount = cookbook?.receptKuharice?.Count ?? 0;
-        <article class="card-y2k cta-card">
-            <h2>@(cookbook?.naziv ?? "Kuharica")</h2>
-            <p><strong>Korisnik:</strong> @user.username</p>
-            <p><strong>Spremljeni recepti:</strong> @recipeCount</p>
-            <a class="btn btn-y2k" asp-controller="Kuharice" asp-action="Details" asp-route-userId="@user.id">Otvori kuharicu</a>
+<div class="row g-4">
+    <div class="col-12">
+        <article class="card-y2k" style="max-width: 520px;">
+            <h2>Pretraga</h2>
+            <p>Pronađi kuharicu prema nazivu ili korisniku.</p>
+            <input type="search"
+                   class="form-control"
+                   placeholder="Pretraži kuharice..."
+                   data-search-input
+                   data-search-url="@Url.Action("Index", "Kuharice")"
+                   data-search-target="#cookbook-cards" />
         </article>
-    }
+    </div>
+    <div class="col-12">
+        <div id="cookbook-cards" class="contents">
+            @await Html.PartialAsync("_CookbookCards", Model)
+        </div>
+    </div>
 </div>

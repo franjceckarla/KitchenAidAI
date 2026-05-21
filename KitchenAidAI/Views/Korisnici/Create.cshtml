@@ -1,4 +1,4 @@
-@model KitchenAidAI.Models.User
+@model KitchenAidAI.Models.ViewModels.RegisterViewModel
 
 @{
     ViewData["Title"] = "Novi korisnik";
@@ -12,19 +12,71 @@
     <article class="card-y2k cta-card" style="width: min(720px, 100%);">
         <form asp-action="Create" method="post" class="row g-3">
             @Html.AntiForgeryToken()
-            <div class="col-12">
-                <label asp-for="username" class="form-label">Korisničko ime</label>
-                <input asp-for="username" class="form-control" />
-                <span asp-validation-for="username" class="text-danger"></span>
+            <div class="col-md-6">
+                <label asp-for="Ime" class="form-label">Ime</label>
+                <div class="autocomplete" data-autocomplete-url="@Url.Action("UserFieldSearch", "Auth")" data-autocomplete-field="ime" data-autocomplete-min-length="1">
+                    <input asp-for="Ime" class="form-control autocomplete-input" autocomplete="off" placeholder="Pocni tipkati ime..." />
+                    <div class="autocomplete-menu" role="listbox"></div>
+                </div>
+                <span asp-validation-for="Ime" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Prezime" class="form-label">Prezime</label>
+                <div class="autocomplete" data-autocomplete-url="@Url.Action("UserFieldSearch", "Auth")" data-autocomplete-field="prezime" data-autocomplete-min-length="1">
+                    <input asp-for="Prezime" class="form-control autocomplete-input" autocomplete="off" placeholder="Pocni tipkati prezime..." />
+                    <div class="autocomplete-menu" role="listbox"></div>
+                </div>
+                <span asp-validation-for="Prezime" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                @await Html.PartialAsync("_DateTimePicker", null, new ViewDataDictionary(ViewData)
+                {
+                    { "FieldName", nameof(Model.DatumRodenja) },
+                    { "Label", "Datum rodenja" },
+                    { "Value", Model.DatumRodenja },
+                    { "IncludeTime", false }
+                })
+                <span asp-validation-for="DatumRodenja" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Zemlja" class="form-label">Zemlja</label>
+                <div class="autocomplete" data-autocomplete-url="@Url.Action("CountrySearch", "Auth")">
+                    <input asp-for="Zemlja" class="form-control autocomplete-input" autocomplete="off" placeholder="Pocni tipkati zemlju..." />
+                    <div class="autocomplete-menu" role="listbox"></div>
+                </div>
+                <span asp-validation-for="Zemlja" class="text-danger"></span>
             </div>
             <div class="col-12">
-                <label asp-for="email" class="form-label">Email</label>
-                <input asp-for="email" type="email" class="form-control" placeholder="primer@example.com" required />
-                <span asp-validation-for="email" class="text-danger"></span>
+                <label asp-for="Email" class="form-label">Email</label>
+                <div class="autocomplete" data-autocomplete-url="@Url.Action("UserFieldSearch", "Auth")" data-autocomplete-field="email" data-autocomplete-min-length="1">
+                    <input asp-for="Email" class="form-control autocomplete-input" autocomplete="off" placeholder="Pocni tipkati email..." />
+                    <div class="autocomplete-menu" role="listbox"></div>
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="col-12">
-                <label asp-for="preferencijaPrehrane" class="form-label">Preferencija prehrane</label>
-                <select asp-for="preferencijaPrehrane" class="form-select" asp-items="Html.GetEnumSelectList<KitchenAidAI.Models.Enums.PreferencijaPrehrane>()"></select>
+                <label asp-for="Username" class="form-label">Korisnicko ime</label>
+                <input asp-for="Username" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Password" class="form-label">Lozinka</label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Preferencije prehrane</label>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (KitchenAidAI.Models.Enums.PreferencijaPrehrane pref in Enum.GetValues(typeof(KitchenAidAI.Models.Enums.PreferencijaPrehrane)))
+                    {
+                        var isChecked = Model.SelectedPreferences.Contains(pref);
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="SelectedPreferences" value="@pref" checked="@(isChecked ? "checked" : null)" />
+                            <label class="form-check-label">@pref</label>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="SelectedPreferences" class="text-danger"></span>
             </div>
             <div class="col-12 d-flex gap-2">
                 <button type="submit" class="btn btn-y2k">Spremi</button>

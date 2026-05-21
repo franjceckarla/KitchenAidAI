@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Detalji kuharice";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
 }
 
 <section class="hero-section">
@@ -12,39 +13,23 @@
 <div class="main-cta-section">
     <article class="card-y2k" style="width: min(920px, 100%); text-align: left;">
         <h2>Spremljeni recepti</h2>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <input type="search"
+                   class="form-control"
+                   style="max-width: 320px;"
+                   placeholder="Pretraži recepte..."
+                   data-search-input
+                   data-search-url="@Url.Action("Search", "Kuharice", new { userId = ViewBag.UserId })"
+                   data-search-target="#cookbook-recipes" />
+        </div>
         @if (Model.receptKuharice is null || !Model.receptKuharice.Any())
         {
             <p>U ovoj kuharici nema spremljenih recepata.</p>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Naziv</th>
-                            <th>Opis</th>
-                            <th>Vrijeme</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.receptKuharice)
-                        {
-                            <tr>
-                                <td>@item.recept?.naziv</td>
-                                <td>@item.recept?.opis</td>
-                                <td>@item.recept?.vrijemeKuhanja min</td>
-                                <td>
-                                    @if (item.recept is not null)
-                                    {
-                                        <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Recepti" asp-action="Details" asp-route-id="@item.recept.id">Detalji</a>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div id="cookbook-recipes">
+                @await Html.PartialAsync("_CookbookRecipes", Model.receptKuharice.ToList())
             </div>
         }
 

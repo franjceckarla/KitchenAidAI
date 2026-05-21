@@ -12,3 +12,62 @@
     transform: translateY(-5px);
     box-shadow: 12px 12px 0 var(--shadow-color);
 }
+
+.y2k-table-wrap {
+    border: 3px solid var(--y2k-purple);
+    border-radius: 14px;
+    padding: 12px;
+    background: #ffffff;
+    box-shadow: 8px 8px 0 var(--y2k-pink);
+}
+
+.y2k-table {
+    background: var(--y2k-creamy);
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.y2k-table thead th {
+    background: var(--y2k-pink);
+    color: #ffffff;
+    border: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    padding: 8px 12px;
+    line-height: 1.1;
+}
+
+.y2k-table tbody td {
+    background: #ffffff;
+    border-bottom: 2px dashed rgba(255, 20, 147, 0.4);
+    padding: 12px 14px;
+}
+
+.y2k-table tbody tr:nth-child(even) td {
+    background: rgba(255, 192, 203, 0.22);
+}
+
+.y2k-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.y2k-col-id {
+    width: 56px;
+    text-align: center;
+    font-weight: 700;
+    color: #4a2b44;
+}
+
+.y2k-col-actions {
+    width: 220px;
+}
+
+.y2k-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}

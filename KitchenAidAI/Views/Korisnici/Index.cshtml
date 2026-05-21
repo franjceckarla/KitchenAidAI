@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Korisnici";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
 }
 
 <section class="hero-section">
@@ -16,24 +17,28 @@
     </div>
 }
 
-<div class="main-cta-section">
-    <article class="card-y2k cta-card">
-        <h2>Novi korisnik</h2>
-        <p>Kreiraj novi profil i automatski dodaj frižider i kuharicu.</p>
-        <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Create">Dodaj korisnika</a>
-    </article>
-    @foreach (var user in Model)
-    {
-        <article class="card-y2k cta-card">
-            <h2>@user.username</h2>
-            <p>@user.email</p>
-            <p>Preferencija: @user.preferencijaPrehrane</p>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Profil</a>
-                <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Frizider" asp-action="Index" asp-route-userId="@user.id">Frižider</a>
-                <a class="btn btn-y2k btn-y2k-tertiary" asp-controller="Korisnici" asp-action="Edit" asp-route-id="@user.id">Uredi</a>
-                <a class="btn btn-y2k btn-y2k-danger" asp-controller="Korisnici" asp-action="Delete" asp-route-id="@user.id">Obriši</a>
-            </div>
+<div class="row g-4">
+    <div class="col-12">
+        <article class="card-y2k" style="max-width: 520px;">
+            <h2>Pretraga</h2>
+            <p>Pronađi korisnika prema imenu ili emailu.</p>
+            <input type="search"
+                   class="form-control"
+                   placeholder="Pretraži korisnike..."
+                   data-search-input
+                   data-search-url="@Url.Action("Index", "Korisnici")"
+                   data-search-target="#user-cards" />
+            @if (isAdmin)
+            {
+                <div class="mt-3">
+                    <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Create">Dodaj korisnika</a>
+                </div>
+            }
         </article>
-    }
+    </div>
+    <div class="col-12">
+        <div id="user-cards" class="contents">
+            @await Html.PartialAsync("_UserCards", Model)
+        </div>
+    </div>
 </div>

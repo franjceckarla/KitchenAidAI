@@ -1,4 +1,6 @@
 using KitchenAidAI.Data;
+using KitchenAidAI.Filters;
+using KitchenAidAI.Helpers;
 using KitchenAidAI.Models;
 using KitchenAidAI.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KitchenAidAI.Controllers
 {
+    [RequireSession]
     public class NamirniceController : Controller
     {
         private readonly KitchenAidDbContext _dbContext;
@@ -19,8 +22,16 @@ namespace KitchenAidAI.Controllers
         [HttpGet]
         public IActionResult Create(int friziderId)
         {
-            var fridge = _dbContext.Frizideri.AsNoTracking().FirstOrDefault(currentFridge => currentFridge.id == friziderId);
+            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var currentUserId = AuthSession.GetUserId(HttpContext);
+
+            var fridge = _dbContext.Frizideri.AsNoTracking().FirstOrDefault(currentFridge => currentFridge.id == friziderId && (isAdmin || !currentFridge.isDeleted));
             if (fridge is null)
+            {
+                return NotFound();
+            }
+
+            if (!isAdmin && fridge.userId != currentUserId)
             {
                 return NotFound();
             }
@@ -35,12 +46,26 @@ namespace KitchenAidAI.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Namirnica namirnica)
         {
+            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var currentUserId = AuthSession.GetUserId(HttpContext);
+
             if (!ModelState.IsValid)
             {
                 ViewBag.FriziderId = namirnica.friziderId;
                 ViewBag.UserId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
                 PopulateDropdowns();
                 return View(namirnica);
+            }
+
+            var fridge = _dbContext.Frizideri.FirstOrDefault(currentFridge => currentFridge.id == namirnica.friziderId && (isAdmin || !currentFridge.isDeleted));
+            if (fridge is null)
+            {
+                return NotFound();
+            }
+
+            if (!isAdmin && fridge.userId != currentUserId)
+            {
+                return NotFound();
             }
 
             _dbContext.Namirnice.Add(namirnica);
@@ -52,8 +77,18 @@ namespace KitchenAidAI.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var namirnica = _dbContext.Namirnice.FirstOrDefault(currentItem => currentItem.id == id);
+            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var currentUserId = AuthSession.GetUserId(HttpContext);
+
+            var namirnica = _dbContext.Namirnice
+                .Include(currentItem => currentItem.frizider)
+                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
             if (namirnica is null)
+            {
+                return NotFound();
+            }
+
+            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
             {
                 return NotFound();
             }
@@ -68,8 +103,18 @@ namespace KitchenAidAI.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Namirnica input)
         {
-            var namirnica = _dbContext.Namirnice.FirstOrDefault(currentItem => currentItem.id == id);
+            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var currentUserId = AuthSession.GetUserId(HttpContext);
+
+            var namirnica = _dbContext.Namirnice
+                .Include(currentItem => currentItem.frizider)
+                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
             if (namirnica is null)
+            {
+                return NotFound();
+            }
+
+            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
             {
                 return NotFound();
             }
@@ -96,8 +141,18 @@ namespace KitchenAidAI.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var namirnica = _dbContext.Namirnice.FirstOrDefault(currentItem => currentItem.id == id);
+            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var currentUserId = AuthSession.GetUserId(HttpContext);
+
+            var namirnica = _dbContext.Namirnice
+                .Include(currentItem => currentItem.frizider)
+                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
             if (namirnica is null)
+            {
+                return NotFound();
+            }
+
+            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
             {
                 return NotFound();
             }
@@ -111,14 +166,24 @@ namespace KitchenAidAI.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var namirnica = _dbContext.Namirnice.FirstOrDefault(currentItem => currentItem.id == id);
+            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var currentUserId = AuthSession.GetUserId(HttpContext);
+
+            var namirnica = _dbContext.Namirnice
+                .Include(currentItem => currentItem.frizider)
+                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
             if (namirnica is null)
             {
                 return NotFound();
             }
 
+            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
+            {
+                return NotFound();
+            }
+
             var userId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
-            _dbContext.Namirnice.Remove(namirnica);
+            namirnica.isDeleted = true;
             _dbContext.SaveChanges();
 
             return RedirectToAction("Index", "Frizider", new { userId = userId });

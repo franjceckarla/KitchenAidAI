@@ -1,0 +1,89 @@
+@model IReadOnlyList<KitchenAidAI.Models.User>
+
+@{
+    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
+}
+
+@if (Model is null || !Model.Any())
+{
+    <p>Nema korisnika za prikaz.</p>
+}
+else
+{
+    if (isAdmin)
+    {
+        <div class="table-responsive y2k-table-wrap">
+            <table class="table table-hover mb-0 align-middle y2k-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="y2k-col-id">ID</th>
+                        <th scope="col">Korisničko ime</th>
+                        <th scope="col">Email</th>
+                        <th scope="col" class="text-nowrap">Datum rođenja</th>
+                        <th scope="col" class="text-nowrap">Kreirano</th>
+                        <th scope="col">Uloga</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end y2k-col-actions">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr class="y2k-row-link" data-row-href="@Url.Action("Details", "Korisnici", new { id = user.id })">
+                            <td class="y2k-col-id">@user.id</td>
+                            <td><strong>@user.username</strong></td>
+                            <td class="text-nowrap">@user.email</td>
+                            <td class="text-nowrap">
+                                @(user.datumRodenja.HasValue ? user.datumRodenja.Value.ToString("dd.MM.yyyy") : "-")
+                            </td>
+                            <td class="text-nowrap">@user.kreirano.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                @if (user.isAdmin) { <span class="badge bg-warning text-dark">Admin</span> }
+                                else { <span class="badge bg-secondary">Korisnik</span> }
+                            </td>
+                            <td>
+                                @if (user.isDeleted) { <span class="badge bg-danger">Obrisano</span> }
+                                else { <span class="badge bg-success">Aktivno</span> }
+                            </td>
+                            <td class="text-end y2k-col-actions">
+                                <div class="y2k-actions">
+                                    <a class="btn btn-sm btn-primary" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Pregled</a>
+                                    <a class="btn btn-sm btn-info" asp-controller="Korisnici" asp-action="Edit" asp-route-id="@user.id">Uređivanje</a>
+                                @if (user.isDeleted)
+                                {
+                                    <form asp-controller="Korisnici" asp-action="Restore" asp-route-id="@user.id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success">Vrati</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-danger" asp-controller="Korisnici" asp-action="Delete" asp-route-id="@user.id">Obriši</a>
+                                }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var user in Model)
+            {
+                <article class="card-y2k cta-card">
+                    <h2>@user.username</h2>
+                    <p>@user.email</p>
+                    <p>Preferencija: @user.preferencijaPrehrane</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a class="btn btn-y2k" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Profil</a>
+                        <a class="btn btn-y2k btn-y2k-secondary" asp-controller="Frizider" asp-action="Index" asp-route-userId="@user.id">Frižider</a>
+                        <a class="btn btn-y2k btn-y2k-tertiary" asp-controller="Korisnici" asp-action="Edit" asp-route-id="@user.id">Uredi</a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+}

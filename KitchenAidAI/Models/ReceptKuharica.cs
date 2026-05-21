@@ -17,5 +17,14 @@ namespace KitchenAidAI.Models
 
         [ForeignKey(nameof(kuharicaId))]
         public Kuharica? kuharica { get; set; }
+
+        public DateTime kreirano { get; set; }
+
+        public bool isDeleted { get; set; }
+
+        public ReceptKuharica()
+        {
+            kreirano = DateTime.Now;
+        }
     }
 }

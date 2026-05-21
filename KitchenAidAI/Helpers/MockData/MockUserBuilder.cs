@@ -15,6 +15,8 @@ namespace KitchenAidAI.Helpers.MockData
                 {
                     id = 1,
                     username = "marko92",
+                    ime = "Marko",
+                    prezime = "Horvat",
                     email = "marko@example.com",
                     preferencijaPrehrane = PreferencijaPrehrane.Omnivorte,
                     frizider = fridges[1],
@@ -24,6 +26,8 @@ namespace KitchenAidAI.Helpers.MockData
                 {
                     id = 2,
                     username = "petra_love",
+                    ime = "Petra",
+                    prezime = "Kovac",
                     email = "petra@example.com",
                     preferencijaPrehrane = PreferencijaPrehrane.Vegetarijanac,
                     frizider = fridges[2],
@@ -33,6 +37,8 @@ namespace KitchenAidAI.Helpers.MockData
                 {
                     id = 3,
                     username = "ana_fit",
+                    ime = "Ana",
+                    prezime = "Ilic",
                     email = "ana@example.com",
                     preferencijaPrehrane = PreferencijaPrehrane.Vegan,
                     frizider = fridges[3],

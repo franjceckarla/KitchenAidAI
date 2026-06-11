@@ -1,314 +1,243 @@
-using KitchenAidAI.Data;
 using KitchenAidAI.Filters;
+using System.Globalization;
 using KitchenAidAI.Helpers;
-using KitchenAidAI.Models;
-using Microsoft.EntityFrameworkCore;
+using KitchenAidAI.Models.DTOs;
+using KitchenAidAI.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KitchenAidAI.Controllers
 {
+    [Authorize]
     [RequireSession]
-    public class ReceptiController : Controller
+    public class ReceptiController : MvcApiControllerBase
     {
-        private readonly KitchenAidDbContext _dbContext;
-
-        public ReceptiController(KitchenAidDbContext dbContext)
+        public ReceptiController(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory)
         {
-            _dbContext = dbContext;
         }
 
-        public IActionResult Index(string? search)
+        public async Task<IActionResult> Index(
+            string? search,
+            TezinaRecepta? tezina,
+            double? minVrijeme,
+            double? maxVrijeme,
+            int? minPorcija,
+            int? maxPorcija,
+            DateTime? odDatuma,
+            DateTime? doDatuma,
+            string? sortBy,
+            string? sortDir)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
+            var includeDeleted = isAdmin ? "true" : "false";
+            var parameters = new List<string> { $"includeDeleted={includeDeleted}" };
+            void AddParam(string name, string? value)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    parameters.Add($"{name}={Uri.EscapeDataString(value)}");
+                }
+            }
 
-            IQueryable<Recept> recipesQuery = _dbContext.Recepti;
+            AddParam("search", search);
+            AddParam("tezina", tezina?.ToString());
+            AddParam("minVrijeme", minVrijeme?.ToString(CultureInfo.InvariantCulture));
+            AddParam("maxVrijeme", maxVrijeme?.ToString(CultureInfo.InvariantCulture));
+            AddParam("minPorcija", minPorcija?.ToString(CultureInfo.InvariantCulture));
+            AddParam("maxPorcija", maxPorcija?.ToString(CultureInfo.InvariantCulture));
+            AddParam("odDatuma", odDatuma?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            AddParam("doDatuma", doDatuma?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            AddParam("sortBy", sortBy);
+            AddParam("sortDir", sortDir);
+
+            var query = "/api/recepti" + (parameters.Count > 0 ? $"?{string.Join("&", parameters)}" : string.Empty);
+
             if (isAdmin)
             {
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    recipesQuery = recipesQuery.Where(recipe =>
-                        (recipe.naziv ?? string.Empty).Contains(search)
-                        || (recipe.opis ?? string.Empty).Contains(search));
-                }
-            }
-            else if (currentUserId.HasValue)
-            {
-                recipesQuery = recipesQuery.Where(recipe =>
-                    !recipe.isDeleted
-                    && recipe.receptKuharice.Any(join =>
-                        !join.isDeleted
-                        && join.kuharica != null
-                        && join.kuharica.userId == currentUserId.Value
-                        && !join.kuharica.isDeleted));
+                var response = await GetApiResponseAsync<List<ReceptDto>>(query);
+                var data = response?.success == true && response.data is not null
+                    ? response.data
+                    : new List<ReceptDto>();
 
-                if (!string.IsNullOrWhiteSpace(search))
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    recipesQuery = recipesQuery.Where(recipe =>
-                        (recipe.naziv ?? string.Empty).Contains(search)
-                        || (recipe.opis ?? string.Empty).Contains(search));
+                    return PartialView("_RecipeCards", data);
                 }
+
+                return View(data);
             }
 
-            var recipes = recipesQuery.AsNoTracking().ToList();
+            var publicResponse = await GetApiResponseAsync<List<ReceptPublicDto>>(query);
+            var items = publicResponse?.success == true && publicResponse.data is not null
+                ? publicResponse.data.Select(recipe => recipe.ToDto()).ToList()
+                : new List<ReceptDto>();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_RecipeCards", recipes);
+                return PartialView("_RecipeCards", items);
             }
 
-            return View(recipes);
+            return View(items);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
 
-            IQueryable<Recept> recipeQuery = _dbContext.Recepti.AsNoTracking();
             if (isAdmin)
             {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id);
-            }
-            else if (currentUserId.HasValue)
-            {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id
-                    && !currentRecipe.isDeleted
-                    && currentRecipe.receptKuharice.Any(join =>
-                        !join.isDeleted
-                        && join.kuharica != null
-                        && join.kuharica.userId == currentUserId.Value
-                        && !join.kuharica.isDeleted));
+                var response = await GetApiResponseAsync<ReceptDto>($"/api/recepti/{id}");
+                if (response?.success != true || response.data is null)
+                {
+                    return NotFound();
+                }
+
+                return View(response.data);
             }
 
-            var recipe = recipeQuery.FirstOrDefault();
-            if (recipe is null)
+            var publicResponse = await GetApiResponseAsync<ReceptPublicDto>($"/api/recepti/{id}");
+            if (publicResponse?.success != true || publicResponse.data is null)
             {
                 return NotFound();
             }
 
-            return View(recipe);
+            return View(publicResponse.data.ToDto());
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View(new Recept());
+            return View(new ReceptFormDto());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Recept recipe)
+        public async Task<IActionResult> Create(ReceptFormDto recipe)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
-
             if (!ModelState.IsValid)
             {
                 return View(recipe);
             }
 
-            recipe.kreirano = DateTime.Now;
-            recipe.isDeleted = false;
-            _dbContext.Recepti.Add(recipe);
-
-            if (!isAdmin && currentUserId.HasValue)
+            var response = await PostApiResponseAsync<ReceptDto>("/api/recepti", recipe);
+            if (response?.success != true)
             {
-                var cookbookId = _dbContext.Kuharice
-                    .Where(cookbook => cookbook.userId == currentUserId.Value && !cookbook.isDeleted)
-                    .Select(cookbook => cookbook.id)
-                    .FirstOrDefault();
-                if (cookbookId == 0)
-                {
-                    return NotFound();
-                }
-
-                _dbContext.ReceptKuharice.Add(new ReceptKuharica
-                {
-                    recept = recipe,
-                    kuharicaId = cookbookId
-                });
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo spremanje recepta.");
+                return View(recipe);
             }
-
-            _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
 
-            var recipeQuery = _dbContext.Recepti.AsQueryable();
-            if (!isAdmin && currentUserId.HasValue)
+            if (isAdmin)
             {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id
-                    && !currentRecipe.isDeleted
-                    && currentRecipe.receptKuharice.Any(join =>
-                        !join.isDeleted
-                        && join.kuharica != null
-                        && join.kuharica.userId == currentUserId.Value
-                        && !join.kuharica.isDeleted));
-            }
-            else
-            {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id);
+                var response = await GetApiResponseAsync<ReceptDto>($"/api/recepti/{id}");
+                if (response?.success != true || response.data is null)
+                {
+                    return NotFound();
+                }
+
+                return View(ToFormDto(response.data));
             }
 
-            var recipe = recipeQuery.FirstOrDefault();
-            if (recipe is null)
+            var publicResponse = await GetApiResponseAsync<ReceptPublicDto>($"/api/recepti/{id}");
+            if (publicResponse?.success != true || publicResponse.data is null)
             {
                 return NotFound();
             }
 
-            return View(recipe);
+            return View(ToFormDto(publicResponse.data.ToDto()));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Recept input)
+        public async Task<IActionResult> Edit(int id, ReceptFormDto input)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
-
-            var recipeQuery = _dbContext.Recepti.AsQueryable();
-            if (!isAdmin && currentUserId.HasValue)
-            {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id
-                    && !currentRecipe.isDeleted
-                    && currentRecipe.receptKuharice.Any(join =>
-                        !join.isDeleted
-                        && join.kuharica != null
-                        && join.kuharica.userId == currentUserId.Value
-                        && !join.kuharica.isDeleted));
-            }
-            else
-            {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id);
-            }
-
-            var recipe = recipeQuery.FirstOrDefault();
-            if (recipe is null)
-            {
-                return NotFound();
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(input);
             }
 
-            recipe.naziv = input.naziv;
-            recipe.opis = input.opis;
-            recipe.vrijemeKuhanja = input.vrijemeKuhanja;
-            recipe.tezina = input.tezina;
-            recipe.brojPorcija = input.brojPorcija;
-
-            _dbContext.SaveChanges();
+            var response = await PutApiResponseAsync<ReceptDto>($"/api/recepti/{id}", input);
+            if (response?.success != true)
+            {
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo spremanje recepta.");
+                return View(input);
+            }
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
 
-            var recipeQuery = _dbContext.Recepti.AsQueryable();
-            if (!isAdmin && currentUserId.HasValue)
+            if (isAdmin)
             {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id
-                    && !currentRecipe.isDeleted
-                    && currentRecipe.receptKuharice.Any(join =>
-                        !join.isDeleted
-                        && join.kuharica != null
-                        && join.kuharica.userId == currentUserId.Value
-                        && !join.kuharica.isDeleted));
-            }
-            else
-            {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id);
+                var response = await GetApiResponseAsync<ReceptDto>($"/api/recepti/{id}");
+                if (response?.success != true || response.data is null)
+                {
+                    return NotFound();
+                }
+
+                return View(response.data);
             }
 
-            var recipe = recipeQuery.FirstOrDefault();
-            if (recipe is null)
+            var publicResponse = await GetApiResponseAsync<ReceptPublicDto>($"/api/recepti/{id}");
+            if (publicResponse?.success != true || publicResponse.data is null)
             {
                 return NotFound();
             }
 
-            return View(recipe);
+            return View(publicResponse.data.ToDto());
         }
 
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
-
-            var recipeQuery = _dbContext.Recepti
-                .Include(currentRecipe => currentRecipe.koraci)
-                .Include(currentRecipe => currentRecipe.receptKuharice)
-                .AsQueryable();
-            if (!isAdmin && currentUserId.HasValue)
+            var response = await DeleteApiResponseAsync<ReceptDto>($"/api/recepti/{id}");
+            if (response?.success != true)
             {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id
-                    && !currentRecipe.isDeleted
-                    && currentRecipe.receptKuharice.Any(join =>
-                        !join.isDeleted
-                        && join.kuharica != null
-                        && join.kuharica.userId == currentUserId.Value
-                        && !join.kuharica.isDeleted));
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo brisanje recepta.");
             }
-            else
-            {
-                recipeQuery = recipeQuery.Where(currentRecipe => currentRecipe.id == id);
-            }
-
-            var recipe = recipeQuery.FirstOrDefault();
-            if (recipe is null)
-            {
-                return NotFound();
-            }
-
-            recipe.isDeleted = true;
-            foreach (var step in recipe.koraci)
-            {
-                step.isDeleted = true;
-            }
-
-            foreach (var join in recipe.receptKuharice)
-            {
-                join.isDeleted = true;
-            }
-
-            _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Restore(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Restore(int id)
         {
-            if (!AuthSession.IsAdmin(HttpContext))
+            var response = await PostApiResponseAsync<ReceptDto>($"/api/recepti/{id}/restore", new { });
+            if (response?.success != true)
             {
-                return Forbid();
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo vracanje recepta.");
             }
-
-            var recipe = _dbContext.Recepti.FirstOrDefault(currentRecipe => currentRecipe.id == id);
-            if (recipe is null)
-            {
-                return NotFound();
-            }
-
-            recipe.isDeleted = false;
-            _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private static ReceptFormDto ToFormDto(ReceptDto recipe)
+        {
+            return new ReceptFormDto
+            {
+                id = recipe.id,
+                naziv = recipe.naziv,
+                opis = recipe.opis,
+                vrijemeKuhanja = recipe.vrijemeKuhanja,
+                tezina = recipe.tezina,
+                brojPorcija = recipe.brojPorcija
+            };
         }
     }
 }

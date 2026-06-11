@@ -23,8 +23,8 @@
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
         var pageTitle = ViewData["Title"]?.ToString() ?? "";
         var isAdmin = ViewBag.IsAdmin as bool? ?? false;
-        var isLoggedIn = KitchenAidAI.Helpers.AuthSession.GetUserId(Context).HasValue;
-        var chefUsername = KitchenAidAI.Helpers.AuthSession.GetUsername(Context);
+        var isLoggedIn = User?.Identity?.IsAuthenticated ?? false;
+        var chefUsername = User?.Identity?.Name;
         if (string.IsNullOrWhiteSpace(chefUsername))
         {
             chefUsername = "Korisnice";
@@ -40,6 +40,7 @@
             "Recepti" => "Recepti",
             "Namirnice" => "Namirnice",
             "Kuharice" => "Kuharice",
+            "Datoteke" => "Datoteke",
             _ => "Sekcija"
         };
 
@@ -51,6 +52,7 @@
             "Recepti" => "Recepti",
             "Namirnice" => "Frizider",
             "Kuharice" => "Kuharice",
+            "Datoteke" => "Datoteke",
             _ => "Home"
         };
 
@@ -63,6 +65,7 @@
             "Frizider" => "frizider",
             "Namirnice" => "namirnice",
             "Kuharice" => "kuharice",
+            "Datoteke" => "datoteke",
             "Korisnici" => "korisnici",
             _ => "sekcija"
         };
@@ -132,14 +135,16 @@
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="@navClass("Recepti")" asp-area="" asp-controller="Recepti" asp-action="Index">Recepti</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="@navClass("Kuharice")" asp-area="" asp-controller="Kuharice" asp-action="Index">Kuharice</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="@navClass("Home", "Chat")" asp-area="" asp-controller="Home" asp-action="Chat">Asistent</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="actionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Akcije
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="actionsDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Recepti" asp-action="Index">Recepti</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Kuharice" asp-action="Index">Kuharice</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Datoteke" asp-action="Index">Datoteke</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Chat">Asistent</a></li>
+                                </ul>
                             </li>
                         }
                         <li class="nav-item">

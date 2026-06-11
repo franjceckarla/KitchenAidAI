@@ -1,7 +1,7 @@
-@model IReadOnlyList<KitchenAidAI.Models.User>
+@model IReadOnlyList<KitchenAidAI.Models.DTOs.UserDto>
 
 @{
-    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
+    var isAdmin = ViewBag.IsAdmin as bool? ?? Context.User.IsInRole("Admin");
 }
 
 @if (Model is null || !Model.Any())

@@ -1,65 +1,170 @@
 using KitchenAidAI.Data;
-using KitchenAidAI.Helpers;
+using KitchenAidAI.Models;
 using KitchenAidAI.Models.Enums;
 using KitchenAidAI.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace KitchenAidAI.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly KitchenAidDbContext _dbContext;
-        private readonly PasswordHasher<Models.User> _passwordHasher = new();
+        private const string LegacyUserIdClaimType = "legacy_user_id";
 
-        public AuthController(KitchenAidDbContext dbContext)
+        private readonly KitchenAidDbContext _dbContext;
+        private readonly IConfiguration _configuration;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
+        private readonly IPasswordHasher<AppUser> _appUserPasswordHasher;
+
+        public AuthController(KitchenAidDbContext dbContext, IConfiguration configuration,
+            UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole<int>> roleManager,
+            IPasswordHasher<AppUser> appUserPasswordHasher)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
+            _appUserPasswordHasher = appUserPasswordHasher;
         }
 
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Login()
         {
-            if (AuthSession.GetUserId(HttpContext).HasValue)
+            if (User?.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
             }
+
+            ViewBag.GoogleLoginEnabled = IsConfigured("Authentication:Google", "ClientId", "ClientSecret");
+            ViewBag.FacebookLoginEnabled = IsConfigured("Authentication:Facebook", "AppId", "AppSecret");
+            ViewBag.MicrosoftLoginEnabled = IsConfigured("Authentication:Microsoft", "ClientId", "ClientSecret");
 
             return View(new LoginViewModel());
         }
 
         [AllowAnonymous]
+        [HttpGet]
+        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (string.IsNullOrWhiteSpace(provider))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            if (!IsProviderEnabled(provider))
+            {
+                TempData["Warning"] = "Odabrani vanjski provider nije konfiguriran.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action(nameof(ExternalLoginCallback), new { returnUrl })
+            };
+            return Challenge(properties, provider);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null)
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                TempData["Warning"] = "Vanjska prijava nije uspjela.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Try to sign in existing linked user
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if (signInResult.Succeeded)
+            {
+                var linkedUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return LocalRedirect(returnUrl);
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            // If no linked user, create one
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var usernameClaim = info.Principal.FindFirstValue(ClaimTypes.Name) ?? email ?? $"user_{Guid.NewGuid():N}";
+            var baseUsername = BuildUsername(usernameClaim, email, info.LoginProvider);
+            var uniqueUsername = EnsureUniqueUsername(baseUsername);
+
+            var appUser = new AppUser
+            {
+                UserName = uniqueUsername,
+                Email = email,
+                ime = info.Principal.FindFirstValue(ClaimTypes.GivenName),
+                prezime = info.Principal.FindFirstValue(ClaimTypes.Surname),
+                preferencijaPrehrane = PreferencijaPrehrane.Omnivorte,
+                isAdmin = false,
+                kreirano = DateTime.Now
+            };
+
+            var createResult = await _userManager.CreateAsync(appUser);
+            if (createResult.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(appUser, "User");
+                await _userManager.AddLoginAsync(appUser, info);
+                await _signInManager.SignInAsync(appUser, isPersistent: false);
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return LocalRedirect(returnUrl);
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            TempData["Warning"] = "Nije moguće dovršiti vanjsku prijavu.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(LoginViewModel input)
+        public async Task<IActionResult> Login(LoginViewModel input)
         {
             if (!ModelState.IsValid)
             {
                 return View(input);
             }
 
-            var user = _dbContext.Users
-                .AsNoTracking()
-                .FirstOrDefault(currentUser => currentUser.username != null
-                    && input.Username != null
-                    && currentUser.username.ToLower() == input.Username.ToLower());
-            if (user is null || user.isDeleted)
+            var result = await _signInManager.PasswordSignInAsync(input.Username ?? string.Empty, input.Password ?? string.Empty, isPersistent: false, lockoutOnFailure: false);
+            if (!result.Succeeded)
             {
-                ModelState.AddModelError(string.Empty, "Neispravno korisničko ime ili lozinka.");
-                return View(input);
+                var legacySignInSucceeded = await TryLegacyLoginAsync(input.Username, input.Password);
+                if (!legacySignInSucceeded)
+                {
+                    ModelState.AddModelError(string.Empty, "Neispravno korisničko ime ili lozinka.");
+                    return View(input);
+                }
+            }
+            else
+            {
+                await EnsureLegacyUserClaimByUsernameAsync(input.Username);
             }
 
-            var result = _passwordHasher.VerifyHashedPassword(user, user.passwordHash ?? string.Empty, input.Password ?? string.Empty);
-            if (result == PasswordVerificationResult.Failed)
-            {
-                ModelState.AddModelError(string.Empty, "Neispravno korisničko ime ili lozinka.");
-                return View(input);
-            }
-
-            AuthSession.SignIn(HttpContext, user);
             return RedirectToAction("Index", "Home");
         }
 
@@ -67,7 +172,7 @@ namespace KitchenAidAI.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            if (AuthSession.GetUserId(HttpContext).HasValue)
+            if (User?.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -78,7 +183,7 @@ namespace KitchenAidAI.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(RegisterViewModel input)
+        public async Task<IActionResult> Register(RegisterViewModel input)
         {
             if (input.SelectedPreferences is null || input.SelectedPreferences.Count == 0)
             {
@@ -94,43 +199,47 @@ namespace KitchenAidAI.Controllers
                 return View(input);
             }
 
-            var usernameExists = _dbContext.Users.Any(user => user.username != null
-                && input.Username != null
-                && user.username.ToLower() == input.Username.ToLower());
+            var usernameExists = await _userManager.FindByNameAsync(input.Username ?? string.Empty) != null;
             if (usernameExists)
             {
                 ModelState.AddModelError(nameof(RegisterViewModel.Username), "Korisnicko ime je vec zauzeto.");
                 return View(input);
             }
 
-            var emailExists = _dbContext.Users.Any(user => user.email != null
-                && input.Email != null
-                && user.email.ToLower() == input.Email.ToLower());
+            var emailExists = await _userManager.FindByEmailAsync(input.Email ?? string.Empty) != null;
             if (emailExists)
             {
                 ModelState.AddModelError(nameof(RegisterViewModel.Email), "Email je vec registriran.");
                 return View(input);
             }
 
-            var newUser = new Models.User
+            var appUser = new AppUser
             {
-                username = input.Username,
+                UserName = input.Username,
+                Email = input.Email,
                 ime = input.Ime,
                 prezime = input.Prezime,
                 datumRodenja = input.DatumRodenja?.Date,
                 zemlja = input.Zemlja,
-                email = input.Email,
                 preferencijaPrehrane = input.SelectedPreferences?.FirstOrDefault() ?? PreferencijaPrehrane.Omnivorte,
                 isAdmin = false,
                 frizider = new Models.Frizider(),
                 kuharica = new Models.Kuharica { naziv = $"{input.Ime} kuharica" }
             };
 
-            newUser.passwordHash = _passwordHasher.HashPassword(newUser, input.Password ?? string.Empty);
-            _dbContext.Users.Add(newUser);
-            _dbContext.SaveChanges();
+            var result = await _userManager.CreateAsync(appUser, input.Password ?? string.Empty);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(input);
+            }
 
-            AuthSession.SignIn(HttpContext, newUser);
+            await _userManager.AddToRoleAsync(appUser, "User");
+            await _signInManager.SignInAsync(appUser, isPersistent: false);
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -189,10 +298,202 @@ namespace KitchenAidAI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            AuthSession.SignOut(HttpContext);
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Auth");
+        }
+
+        private string BuildUsername(string? username, string? email, string provider)
+        {
+            var candidate = !string.IsNullOrWhiteSpace(username)
+                ? username.Trim()
+                : !string.IsNullOrWhiteSpace(email)
+                    ? email.Split('@')[0]
+                    : provider;
+
+            return SanitizeUsername(candidate);
+        }
+
+        private string SanitizeUsername(string value)
+        {
+            var filtered = new string(value.Where(character => char.IsLetterOrDigit(character) || character == '_' || character == '.').ToArray());
+            if (string.IsNullOrWhiteSpace(filtered))
+            {
+                filtered = $"user_{Guid.NewGuid():N}";
+            }
+
+            return filtered.Length > 100 ? filtered[..100] : filtered;
+        }
+
+        private string EnsureUniqueUsername(string baseUsername)
+        {
+            var candidate = baseUsername;
+            var suffix = 1;
+
+            while (_userManager.Users.Any(user => user.UserName != null && user.UserName.ToLower() == candidate.ToLower()))
+            {
+                candidate = $"{baseUsername}{suffix}";
+                suffix += 1;
+            }
+
+            return candidate;
+        }
+
+        private static string EnsureExternalEmail(string? email, string provider, string providerKey)
+        {
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                return email;
+            }
+
+            var safeProvider = new string(provider.Where(character => char.IsLetterOrDigit(character)).ToArray()).ToLowerInvariant();
+            var safeKey = new string(providerKey.Where(character => char.IsLetterOrDigit(character)).ToArray()).ToLowerInvariant();
+            return $"{safeProvider}-{safeKey}@external.kitchenaidai";
+        }
+
+        private bool IsProviderEnabled(string provider)
+        {
+            return provider switch
+            {
+                "Google" => IsConfigured("Authentication:Google", "ClientId", "ClientSecret"),
+                "Facebook" => IsConfigured("Authentication:Facebook", "AppId", "AppSecret"),
+                "Microsoft" => IsConfigured("Authentication:Microsoft", "ClientId", "ClientSecret"),
+                _ => false
+            };
+        }
+
+        private bool IsConfigured(string sectionPath, string key1, string key2)
+        {
+            var section = _configuration.GetSection(sectionPath);
+            return !string.IsNullOrWhiteSpace(section[key1]) && !string.IsNullOrWhiteSpace(section[key2]);
+        }
+
+        private async Task<bool> TryLegacyLoginAsync(string? username, string? password)
+        {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                return false;
+            }
+
+            var normalizedUsername = username.Trim();
+            var legacyUser = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(user =>
+                    !user.isDeleted
+                    && user.username != null
+                    && user.username.ToLower() == normalizedUsername.ToLower());
+
+            if (legacyUser is null || string.IsNullOrWhiteSpace(legacyUser.passwordHash))
+            {
+                return false;
+            }
+
+            var legacyPasswordHasher = new PasswordHasher<User>();
+            var verificationResult = legacyPasswordHasher.VerifyHashedPassword(legacyUser, legacyUser.passwordHash, password);
+            if (verificationResult == PasswordVerificationResult.Failed)
+            {
+                return false;
+            }
+
+            var appUser = await _userManager.FindByNameAsync(normalizedUsername);
+            if (appUser is null)
+            {
+                appUser = new AppUser
+                {
+                    UserName = legacyUser.username,
+                    Email = legacyUser.email,
+                    ime = legacyUser.ime,
+                    prezime = legacyUser.prezime,
+                    datumRodenja = legacyUser.datumRodenja,
+                    zemlja = legacyUser.zemlja,
+                    preferencijaPrehrane = legacyUser.preferencijaPrehrane,
+                    isAdmin = legacyUser.isAdmin,
+                    isDeleted = legacyUser.isDeleted,
+                    kreirano = legacyUser.kreirano,
+                    authProvider = legacyUser.authProvider,
+                    authProviderKey = legacyUser.authProviderKey
+                };
+
+                var createResult = await _userManager.CreateAsync(appUser);
+                if (!createResult.Succeeded)
+                {
+                    return false;
+                }
+            }
+
+            appUser.PasswordHash = _appUserPasswordHasher.HashPassword(appUser, password);
+            var updateResult = await _userManager.UpdateAsync(appUser);
+            if (!updateResult.Succeeded)
+            {
+                return false;
+            }
+
+            var roleName = legacyUser.isAdmin ? "Admin" : "User";
+            if (!await _userManager.IsInRoleAsync(appUser, roleName))
+            {
+                await _userManager.AddToRoleAsync(appUser, roleName);
+            }
+
+            await EnsureLegacyUserClaimAsync(appUser, legacyUser);
+            await _signInManager.SignInAsync(appUser, isPersistent: false);
+            return true;
+        }
+
+        private async Task EnsureLegacyUserClaimByUsernameAsync(string? username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return;
+            }
+
+            var normalizedUsername = username.Trim();
+            var appUser = await _userManager.FindByNameAsync(normalizedUsername);
+            if (appUser is null)
+            {
+                return;
+            }
+
+            var legacyUser = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(user =>
+                    !user.isDeleted
+                    && user.username != null
+                    && user.username.ToLower() == normalizedUsername.ToLower());
+
+            if (legacyUser is null)
+            {
+                return;
+            }
+
+            var legacyClaimChanged = await EnsureLegacyUserClaimAsync(appUser, legacyUser);
+            if (legacyClaimChanged)
+            {
+                await _signInManager.RefreshSignInAsync(appUser);
+            }
+        }
+
+        private async Task<bool> EnsureLegacyUserClaimAsync(AppUser appUser, User legacyUser)
+        {
+            var expectedLegacyUserId = legacyUser.id.ToString();
+            var claims = await _userManager.GetClaimsAsync(appUser);
+            var existingClaim = claims.FirstOrDefault(claim => claim.Type == LegacyUserIdClaimType);
+
+            if (existingClaim is null)
+            {
+                await _userManager.AddClaimAsync(appUser, new Claim(LegacyUserIdClaimType, expectedLegacyUserId));
+                return true;
+            }
+
+            if (existingClaim.Value != expectedLegacyUserId)
+            {
+                await _userManager.RemoveClaimAsync(appUser, existingClaim);
+                await _userManager.AddClaimAsync(appUser, new Claim(LegacyUserIdClaimType, expectedLegacyUserId));
+                return true;
+            }
+
+            return false;
         }
     }
 }

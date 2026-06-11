@@ -8,14 +8,33 @@ function wireAjaxSearch() {
 	const inputs = document.querySelectorAll("[data-search-input]");
 	inputs.forEach((input) => {
 		input.addEventListener("input", () => {
-			const key = input.dataset.searchTarget || "default";
+			const form = input.closest("[data-search-form]");
+			const key = (form?.dataset.searchTarget || input.dataset.searchTarget || "default");
 			clearTimeout(searchDebounce.get(key));
 			searchDebounce.set(key, setTimeout(() => runSearch(input), 250));
 		});
 	});
+
+	const forms = document.querySelectorAll("[data-search-form]");
+	forms.forEach((form) => {
+		const handler = () => {
+			const key = form.dataset.searchTarget || "default";
+			clearTimeout(searchDebounce.get(key));
+			searchDebounce.set(key, setTimeout(() => runSearchFromForm(form), 250));
+		};
+
+		form.addEventListener("input", handler);
+		form.addEventListener("change", handler);
+	});
 }
 
 function runSearch(input) {
+	const form = input.closest("[data-search-form]");
+	if (form) {
+		runSearchFromForm(form);
+		return;
+	}
+
 	const targetSelector = input.dataset.searchTarget;
 	const urlValue = input.dataset.searchUrl;
 	if (!targetSelector || !urlValue) {
@@ -30,6 +49,61 @@ function runSearch(input) {
 	const url = new URL(urlValue, window.location.origin);
 	if (input.value) {
 		url.searchParams.set("search", input.value);
+	}
+
+	fetch(url.toString(), {
+		headers: {
+			"X-Requested-With": "XMLHttpRequest"
+		}
+	})
+		.then((response) => response.text())
+		.then((html) => {
+			target.innerHTML = html;
+		})
+		.catch(() => {
+			// No-op: keep the current list if the request fails.
+		});
+}
+
+function runSearchFromForm(form) {
+	const targetSelector = form.dataset.searchTarget;
+	const urlValue = form.dataset.searchUrl;
+	if (!targetSelector || !urlValue) {
+		return;
+	}
+
+	const target = document.querySelector(targetSelector);
+	if (!target) {
+		return;
+	}
+
+	const url = new URL(urlValue, window.location.origin);
+	const elements = Array.from(form.elements || []);
+	for (const element of elements) {
+		const name = element.name;
+		if (!name) {
+			continue;
+		}
+
+		if (element.type === "checkbox") {
+			if (!element.checked) {
+				continue;
+			}
+			url.searchParams.set(name, "true");
+			continue;
+		}
+
+		if (element.type === "radio") {
+			if (!element.checked) {
+				continue;
+			}
+		}
+
+		const value = String(element.value || "").trim();
+		if (!value) {
+			continue;
+		}
+		url.searchParams.set(name, value);
 	}
 
 	fetch(url.toString(), {

@@ -1,97 +1,136 @@
-using KitchenAidAI.Data;
 using KitchenAidAI.Filters;
+using System.Globalization;
 using KitchenAidAI.Helpers;
-using KitchenAidAI.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using KitchenAidAI.Models.DTOs;
+using KitchenAidAI.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KitchenAidAI.Controllers
 {
+    [Authorize]
     [RequireSession]
-    public class KorisniciController : Controller
+    public class KorisniciController : MvcApiControllerBase
     {
-        private readonly KitchenAidDbContext _dbContext;
-        private readonly PasswordHasher<User> _passwordHasher = new();
-
-        public KorisniciController(KitchenAidDbContext dbContext)
+        public KorisniciController(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory)
         {
-            _dbContext = dbContext;
         }
 
-        public IActionResult Index(string? search)
+        public async Task<IActionResult> Index(
+            string? search,
+            string? username,
+            string? email,
+            string? zemlja,
+            PreferencijaPrehrane? preferencijaPrehrane,
+            bool? isDeleted,
+            bool? hasUploadedFiles,
+            DateTime? odDatuma,
+            DateTime? doDatuma,
+            string? sortBy,
+            string? sortDir,
+            bool includeAdmins = false,
+            bool? includeDeleted = null)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
 
-            var usersQuery = _dbContext.Users.AsQueryable();
-            if (isAdmin)
+            var parameters = new List<string>();
+            void AddParam(string name, string? value)
             {
-                usersQuery = usersQuery.Where(user => !user.isAdmin);
-                if (!string.IsNullOrWhiteSpace(search))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
-                    usersQuery = usersQuery.Where(user =>
-                        (user.username ?? string.Empty).Contains(search)
-                        || (user.email ?? string.Empty).Contains(search));
+                    parameters.Add($"{name}={Uri.EscapeDataString(value)}");
                 }
             }
-            else if (currentUserId.HasValue)
+
+            AddParam("search", search);
+            if (isAdmin)
             {
-                usersQuery = usersQuery.Where(user => user.id == currentUserId.Value && !user.isDeleted);
+                AddParam("username", username);
+                AddParam("email", email);
+                AddParam("zemlja", zemlja);
+                AddParam("preferencijaPrehrane", preferencijaPrehrane?.ToString());
+                AddParam("isDeleted", isDeleted?.ToString().ToLowerInvariant());
+                AddParam("hasUploadedFiles", hasUploadedFiles?.ToString().ToLowerInvariant());
+                AddParam("odDatuma", odDatuma?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                AddParam("doDatuma", doDatuma?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                AddParam("sortBy", sortBy);
+                AddParam("sortDir", sortDir);
+                AddParam("includeAdmins", includeAdmins ? "true" : null);
+                AddParam("includeDeleted", includeDeleted.HasValue ? includeDeleted.Value.ToString().ToLowerInvariant() : null);
             }
 
-            var users = usersQuery.AsNoTracking().ToList();
+            var query = "/api/users" + (parameters.Count > 0 ? $"?{string.Join("&", parameters)}" : string.Empty);
+
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<List<UserDto>>(query);
+                var data = response?.success == true && response.data is not null
+                    ? response.data
+                    : new List<UserDto>();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView("_UserCards", data);
+                }
+
+                return View(data);
+            }
+
+            var publicResponse = await GetApiResponseAsync<List<UserPublicDto>>(query);
+            var items = publicResponse?.success == true && publicResponse.data is not null
+                ? publicResponse.data.Select(user => user.ToDto()).ToList()
+                : new List<UserDto>();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_UserCards", users);
+                return PartialView("_UserCards", items);
             }
 
-            return View(users);
+            return View(items);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
             if (!isAdmin && currentUserId != id)
             {
                 return NotFound();
             }
 
-            var user = _dbContext.Users
-                .Include(currentUser => currentUser.frizider)
-                .Include(currentUser => currentUser.kuharica)
-                .AsNoTracking()
-                .FirstOrDefault(currentUser => currentUser.id == id && (isAdmin || !currentUser.isDeleted));
-            if (user is null)
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<UserDto>($"/api/users/{id}");
+                if (response?.success != true || response.data is null)
+                {
+                    return NotFound();
+                }
+
+                return View(response.data);
+            }
+
+            var publicResponse = await GetApiResponseAsync<UserPublicDto>($"/api/users/{id}");
+            if (publicResponse?.success != true || publicResponse.data is null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(publicResponse.data.ToDto());
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            if (!AuthSession.IsAdmin(HttpContext))
-            {
-                return Forbid();
-            }
-
             return View(new KitchenAidAI.Models.ViewModels.RegisterViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(KitchenAidAI.Models.ViewModels.RegisterViewModel input)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(KitchenAidAI.Models.ViewModels.RegisterViewModel input)
         {
-            if (!AuthSession.IsAdmin(HttpContext))
-            {
-                return Forbid();
-            }
-
             if (input.SelectedPreferences is null || input.SelectedPreferences.Count == 0)
             {
                 ModelState.AddModelError(nameof(KitchenAidAI.Models.ViewModels.RegisterViewModel.SelectedPreferences), "Odaberite barem jednu preferenciju prehrane.");
@@ -106,25 +145,7 @@ namespace KitchenAidAI.Controllers
                 return View(input);
             }
 
-            var usernameExists = _dbContext.Users.Any(user => user.username != null
-                && input.Username != null
-                && user.username.ToLower() == input.Username.ToLower());
-            if (usernameExists)
-            {
-                ModelState.AddModelError(nameof(KitchenAidAI.Models.ViewModels.RegisterViewModel.Username), "Korisnicko ime je vec zauzeto.");
-                return View(input);
-            }
-
-            var emailExists = _dbContext.Users.Any(user => user.email != null
-                && input.Email != null
-                && user.email.ToLower() == input.Email.ToLower());
-            if (emailExists)
-            {
-                ModelState.AddModelError(nameof(KitchenAidAI.Models.ViewModels.RegisterViewModel.Email), "Email je vec registriran.");
-                return View(input);
-            }
-
-            var newUser = new User
+            var payload = new UserCreateDto
             {
                 username = input.Username,
                 ime = input.Ime,
@@ -132,216 +153,123 @@ namespace KitchenAidAI.Controllers
                 datumRodenja = input.DatumRodenja?.Date,
                 zemlja = input.Zemlja,
                 email = input.Email,
-                preferencijaPrehrane = input.SelectedPreferences?.FirstOrDefault() ?? KitchenAidAI.Models.Enums.PreferencijaPrehrane.Omnivorte,
-                isAdmin = false,
-                frizider = new Frizider(),
-                kuharica = new Kuharica { naziv = $"{input.Ime} kuharica" }
+                password = input.Password,
+                preferencijaPrehrane = input.SelectedPreferences?.FirstOrDefault() ?? KitchenAidAI.Models.Enums.PreferencijaPrehrane.Omnivorte
             };
 
-            newUser.passwordHash = _passwordHasher.HashPassword(newUser, input.Password ?? string.Empty);
-            _dbContext.Users.Add(newUser);
-            _dbContext.SaveChanges();
+            var response = await PostApiResponseAsync<UserDto>("/api/users", payload);
+            if (response?.success != true)
+            {
+                ModelState.AddModelError(string.Empty, GetAlertMessage(response, "Neuspjelo spremanje korisnika."));
+                return View(input);
+            }
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
             if (!isAdmin && currentUserId != id)
             {
                 return NotFound();
             }
 
-            var user = _dbContext.Users.FirstOrDefault(currentUser => currentUser.id == id);
-            if (user is null)
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<UserDto>($"/api/users/{id}");
+                if (response?.success != true || response.data is null)
+                {
+                    return NotFound();
+                }
+
+                return View(response.data.ToEditDto());
+            }
+
+            var publicResponse = await GetApiResponseAsync<UserPublicDto>($"/api/users/{id}");
+            if (publicResponse?.success != true || publicResponse.data is null)
             {
                 return NotFound();
             }
 
-            if (!isAdmin && user.isDeleted)
-            {
-                return NotFound();
-            }
-
-            return View(user);
+            var dto = publicResponse.data.ToDto().ToEditDto();
+            return View(dto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, User input, string? newPassword, bool isAdminCheckbox = false)
+        public async Task<IActionResult> Edit(int id, UserEditDto input, string? newPassword, bool isAdminCheckbox = false)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
             if (!isAdmin && currentUserId != id)
             {
                 return NotFound();
             }
-
-            var user = _dbContext.Users.FirstOrDefault(currentUser => currentUser.id == id);
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            if (!isAdmin && user.isDeleted)
-            {
-                return NotFound();
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(input);
             }
 
-            var usernameChanged = !string.Equals(user.username, input.username, StringComparison.Ordinal);
-            user.username = input.username;
-            user.email = input.email;
-            user.preferencijaPrehrane = input.preferencijaPrehrane;
-
-            if (isAdmin)
+            var payload = new UserUpdateDto
             {
-                user.isAdmin = isAdminCheckbox;
-                if (!string.IsNullOrWhiteSpace(newPassword))
-                {
-                    user.passwordHash = _passwordHasher.HashPassword(user, newPassword);
-                }
-            }
+                username = input.username,
+                email = input.email,
+                preferencijaPrehrane = input.preferencijaPrehrane,
+                isAdmin = isAdmin ? isAdminCheckbox : false,
+                newPassword = newPassword
+            };
 
-            if (usernameChanged && string.IsNullOrWhiteSpace(newPassword))
+            var response = await PutApiResponseAsync<UserDto>($"/api/users/{id}", payload);
+            if (response?.success != true)
             {
-                user.passwordHash = _passwordHasher.HashPassword(user, user.username ?? string.Empty);
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo spremanje korisnika.");
+                return View(input);
             }
-
-            _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (!AuthSession.IsAdmin(HttpContext))
-            {
-                return Forbid();
-            }
-
-            var user = _dbContext.Users.FirstOrDefault(currentUser => currentUser.id == id);
-            if (user is null)
+            var response = await GetApiResponseAsync<UserDto>($"/api/users/{id}");
+            if (response?.success != true || response.data is null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(response.data);
         }
 
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!AuthSession.IsAdmin(HttpContext))
+            var response = await DeleteApiResponseAsync<UserDto>($"/api/users/{id}");
+            if (response?.success != true)
             {
-                return Forbid();
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo brisanje korisnika.");
             }
-
-            var user = _dbContext.Users.FirstOrDefault(currentUser => currentUser.id == id);
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            var fullUser = _dbContext.Users
-                .Include(currentUser => currentUser.frizider)
-                .ThenInclude(fridge => fridge!.namirnice)
-                .Include(currentUser => currentUser.kuharica)
-                .ThenInclude(cookbook => cookbook!.receptKuharice)
-                .Include(currentUser => currentUser.chatPoruke)
-                .FirstOrDefault(currentUser => currentUser.id == id);
-            if (fullUser is null)
-            {
-                return NotFound();
-            }
-
-            fullUser.isDeleted = true;
-            if (fullUser.frizider is not null)
-            {
-                fullUser.frizider.isDeleted = true;
-                foreach (var item in fullUser.frizider.namirnice)
-                {
-                    item.isDeleted = true;
-                }
-            }
-
-            if (fullUser.kuharica is not null)
-            {
-                fullUser.kuharica.isDeleted = true;
-                foreach (var join in fullUser.kuharica.receptKuharice)
-                {
-                    join.isDeleted = true;
-                }
-            }
-
-            foreach (var message in fullUser.chatPoruke)
-            {
-                message.isDeleted = true;
-            }
-
-            _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Restore(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Restore(int id)
         {
-            if (!AuthSession.IsAdmin(HttpContext))
+            var response = await PostApiResponseAsync<UserDto>($"/api/users/{id}/restore", new { });
+            if (response?.success != true)
             {
-                return Forbid();
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo vracanje korisnika.");
             }
-
-            var user = _dbContext.Users
-                .Include(currentUser => currentUser.frizider)
-                .ThenInclude(fridge => fridge!.namirnice)
-                .Include(currentUser => currentUser.kuharica)
-                .ThenInclude(cookbook => cookbook!.receptKuharice)
-                .Include(currentUser => currentUser.chatPoruke)
-                .FirstOrDefault(currentUser => currentUser.id == id);
-                
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            user.isDeleted = false;
-            
-            if (user.frizider is not null)
-            {
-                user.frizider.isDeleted = false;
-                foreach (var item in user.frizider.namirnice)
-                {
-                    item.isDeleted = false;
-                }
-            }
-
-            if (user.kuharica is not null)
-            {
-                user.kuharica.isDeleted = false;
-                foreach (var join in user.kuharica.receptKuharice)
-                {
-                    join.isDeleted = false;
-                }
-            }
-
-            foreach (var message in user.chatPoruke)
-            {
-                message.isDeleted = false;
-            }
-
-            _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }

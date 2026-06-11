@@ -1,8 +1,9 @@
-@model KitchenAidAI.Models.Frizider
+@model KitchenAidAI.Models.DTOs.FriziderDto
 
 @{
     ViewData["Title"] = "Frižider";
     var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var query = Context.Request.Query;
 }
 
 <section class="hero-section">
@@ -12,20 +13,197 @@
 <div class="main-cta-section" style="align-items: stretch;">
     <article class="card-y2k" style="width: min(920px, 100%);">
         <h2>Namirnice</h2>
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            <input type="search"
-                   class="form-control"
-                   style="max-width: 320px;"
-                   placeholder="Pretraži namirnice..."
-                   data-search-input
-                   data-search-url="@Url.Action("Search", "Frizider", new { userId = ViewBag.UserId })"
-                   data-search-target="#fridge-items" />
-        </div>
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            <a class="btn btn-y2k" asp-controller="Namirnice" asp-action="Create" asp-route-friziderId="@Model.id">Dodaj namirnicu</a>
-        </div>
+        <form method="get"
+              data-search-form
+              data-search-url="@Url.Action("Search", "Frizider", new { userId = ViewBag.UserId })"
+              data-search-target="#fridge-items">
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-lg-6">
+                    <input type="search"
+                           name="search"
+                           class="form-control"
+                           placeholder="Pretraži namirnice..."
+                           value="@query["search"]" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="kategorija" class="form-control">
+                        <option value="">Kategorija (sve)</option>
+                        @foreach (var value in Enum.GetValues<KitchenAidAI.Models.Enums.KategorijaNamirnice>())
+                        {
+                            <option value="@value" selected="@(query["kategorija"] == value.ToString())">@value</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="mjera" class="form-control">
+                        <option value="">Mjera (sve)</option>
+                        @foreach (var value in Enum.GetValues<KitchenAidAI.Models.Enums.Mjera>())
+                        {
+                            <option value="@value" selected="@(query["mjera"] == value.ToString())">@value</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minKolicina"
+                           class="form-control"
+                           placeholder="Min. količina"
+                           value="@query["minKolicina"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxKolicina"
+                           class="form-control"
+                           placeholder="Max. količina"
+                           value="@query["maxKolicina"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minKalorije"
+                           class="form-control"
+                           placeholder="Min. kalorije"
+                           value="@query["minKalorije"]"
+                           min="0"
+                           step="1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxKalorije"
+                           class="form-control"
+                           placeholder="Max. kalorije"
+                           value="@query["maxKalorije"]"
+                           min="0"
+                           step="1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minProteini"
+                           class="form-control"
+                           placeholder="Min. proteini"
+                           value="@query["minProteini"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxProteini"
+                           class="form-control"
+                           placeholder="Max. proteini"
+                           value="@query["maxProteini"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minMasti"
+                           class="form-control"
+                           placeholder="Min. masti"
+                           value="@query["minMasti"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxMasti"
+                           class="form-control"
+                           placeholder="Max. masti"
+                           value="@query["maxMasti"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minUgljikohidrati"
+                           class="form-control"
+                           placeholder="Min. ugljikohidrati"
+                           value="@query["minUgljikohidrati"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxUgljikohidrati"
+                           class="form-control"
+                           placeholder="Max. ugljikohidrati"
+                           value="@query["maxUgljikohidrati"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minVlakna"
+                           class="form-control"
+                           placeholder="Min. vlakna"
+                           value="@query["minVlakna"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxVlakna"
+                           class="form-control"
+                           placeholder="Max. vlakna"
+                           value="@query["maxVlakna"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minSol"
+                           class="form-control"
+                           placeholder="Min. sol"
+                           value="@query["minSol"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxSol"
+                           class="form-control"
+                           placeholder="Max. sol"
+                           value="@query["maxSol"]"
+                           min="0"
+                           step="0.1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="date"
+                           name="odDatuma"
+                           class="form-control"
+                           value="@query["odDatuma"]" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="date"
+                           name="doDatuma"
+                           class="form-control"
+                           value="@query["doDatuma"]" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="sortBy" class="form-control">
+                        <option value="">Sortiraj po...</option>
+                        <option value="naziv" selected="@(query["sortBy"] == "naziv")">Naziv</option>
+                        <option value="kolicina" selected="@(query["sortBy"] == "kolicina")">Količina</option>
+                        <option value="kreirano" selected="@(query["sortBy"] == "kreirano")">Datum</option>
+                        <option value="kalorije" selected="@(query["sortBy"] == "kalorije")">Kalorije</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="sortDir" class="form-control">
+                        <option value="asc" selected="@(query["sortDir"] != "desc")">Uzlazno</option>
+                        <option value="desc" selected="@(query["sortDir"] == "desc")">Silazno</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a class="btn btn-y2k" asp-controller="Namirnice" asp-action="Create" asp-route-friziderId="@Model.id">Dodaj namirnicu</a>
+                <a class="btn btn-y2k btn-y2k-secondary" href="@Url.Action("Index", "Frizider", new { userId = ViewBag.UserId })">Resetiraj</a>
+            </div>
+        </form>
         <div id="fridge-items">
-            @await Html.PartialAsync("_FridgeItems", Model.namirnice?.ToList() ?? new List<KitchenAidAI.Models.Namirnica>())
+            @await Html.PartialAsync("_FridgeItems", Model.namirnice?.ToList() ?? new List<KitchenAidAI.Models.DTOs.NamirnicaDto>())
         </div>
 
         <div class="d-flex flex-wrap gap-2 mt-4">

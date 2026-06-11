@@ -1,0 +1,79 @@
+@model IReadOnlyList<KitchenAidAI.Models.DTOs.DatotekaDto>
+
+@{
+    ViewData["Title"] = "Datoteke";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var targetUsername = ViewBag.TargetUsername as string;
+    var targetUserId = ViewBag.TargetUserId as int?;
+    var headerTitle = isAdmin && !string.IsNullOrWhiteSpace(targetUsername)
+        ? $"Datoteke korisnika {targetUsername}"
+        : "Moje datoteke";
+}
+
+<div class="card-y2k p-4 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="mb-0">@headerTitle</h2>
+        @if (isAdmin)
+        {
+            <a asp-controller="Korisnici" asp-action="Details" asp-route-id="@targetUserId" class="btn btn-y2k btn-y2k-secondary">Nazad na korisnika</a>
+        }
+        else
+        {
+            <a asp-controller="Home" asp-action="Index" class="btn btn-y2k btn-y2k-secondary">Natrag na Home</a>
+        }
+    </div>
+
+    <form method="get"
+          data-search-form
+          data-search-url="@Url.Action("Index", "Datoteke")"
+          data-search-target="#files-table-body"
+          class="mb-3">
+        @if (isAdmin && targetUserId.HasValue)
+        {
+            <input type="hidden" name="userId" value="@targetUserId" />
+        }
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-lg-8">
+                <input type="search"
+                       name="search"
+                       class="form-control"
+                       placeholder="Pretraži datoteke po nazivu ili opisu..."
+                       value="@Context.Request.Query["search"]" />
+            </div>
+            <div class="col-12 col-lg-4">
+                @if (isAdmin && targetUserId.HasValue)
+                {
+                    <a asp-controller="Datoteke" asp-action="Index" asp-route-userId="@targetUserId" class="btn btn-y2k btn-y2k-secondary w-100">Resetiraj</a>
+                }
+                else
+                {
+                    <a asp-controller="Datoteke" asp-action="Index" class="btn btn-y2k btn-y2k-secondary w-100">Resetiraj</a>
+                }
+            </div>
+        </div>
+    </form>
+
+    <div id="files-alert" class="alert d-none" role="alert"></div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle" id="files-table">
+            <thead>
+                <tr>
+                    <th>Naziv</th>
+                    <th>Opis</th>
+                    <th>Tip</th>
+                    <th>Velicina</th>
+                    <th>Kreirano</th>
+                    <th class="text-end">Akcije</th>
+                </tr>
+            </thead>
+            <tbody id="files-table-body">
+                @await Html.PartialAsync("_FileRows", Model)
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/datoteke.js" asp-append-version="true"></script>
+}

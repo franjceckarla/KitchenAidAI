@@ -1,0 +1,34 @@
+@model IReadOnlyList<KitchenAidAI.Models.DTOs.DatotekaDto>
+@{
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+}
+
+@if (Model is null || !Model.Any())
+{
+    <tr>
+        <td colspan="6" class="text-center text-muted">Nema datoteka za prikaz.</td>
+    </tr>
+}
+else
+{
+    foreach (var file in Model)
+    {
+        <tr data-id="@file.id">
+            <td>@file.naziv</td>
+            <td>@(string.IsNullOrWhiteSpace(file.opis) ? "-" : file.opis)</td>
+            <td>@(string.IsNullOrWhiteSpace(file.contentType) ? "-" : file.contentType)</td>
+            <td>@(file.velicina / 1024d).ToString("0.0") KB</td>
+            <td>@file.kreirano.ToString("dd/MM/yyyy, HH:mm:ss")</td>
+            <td class="text-end">
+                @if (!isAdmin)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-danger js-delete">Obriši</button>
+                }
+                else
+                {
+                    <span class="text-muted">Pregled</span>
+                }
+            </td>
+        </tr>
+    }
+}

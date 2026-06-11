@@ -1,16 +1,20 @@
 using KitchenAidAI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace KitchenAidAI.Data
 {
-    public class KitchenAidDbContext : DbContext
+    public class KitchenAidDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
         public KitchenAidDbContext(DbContextOptions<KitchenAidDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<User> Users => Set<User>();
+        // Keep legacy Users table for compatibility during migration
+        public new DbSet<User> Users => Set<User>();
+        // Identity provides `Users` via IdentityDbContext for `AppUser` (accessible as Set<AppUser>())
         public DbSet<Frizider> Frizideri => Set<Frizider>();
         public DbSet<Namirnica> Namirnice => Set<Namirnica>();
         public DbSet<Kuharica> Kuharice => Set<Kuharica>();
@@ -19,6 +23,7 @@ namespace KitchenAidAI.Data
         public DbSet<ReceptKuharica> ReceptKuharice => Set<ReceptKuharica>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<Country> Countries => Set<Country>();
+        public DbSet<Datoteka> Datoteke => Set<Datoteka>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +39,8 @@ namespace KitchenAidAI.Data
                 entity.Property(e => e.zemlja).HasMaxLength(120);
                 entity.Property(e => e.email).HasMaxLength(200);
                 entity.Property(e => e.passwordHash).HasMaxLength(2000);
+                entity.Property(e => e.authProvider).HasMaxLength(100);
+                entity.Property(e => e.authProviderKey).HasMaxLength(200);
 
                 entity.HasOne(e => e.frizider)
                     .WithOne(e => e.user)
@@ -46,6 +53,11 @@ namespace KitchenAidAI.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(e => e.chatPoruke)
+                    .WithOne(e => e.user)
+                    .HasForeignKey(e => e.userId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(e => e.datoteke)
                     .WithOne(e => e.user)
                     .HasForeignKey(e => e.userId)
                     .OnDelete(DeleteBehavior.Cascade);
@@ -116,6 +128,16 @@ namespace KitchenAidAI.Data
                 entity.HasKey(e => e.id);
                 entity.Property(e => e.naziv).HasMaxLength(120).IsRequired();
                 entity.HasIndex(e => e.naziv).IsUnique();
+            });
+
+            modelBuilder.Entity<Datoteka>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.naziv).HasMaxLength(260);
+                entity.Property(e => e.opis).HasMaxLength(1000);
+                entity.Property(e => e.contentType).HasMaxLength(255);
+                entity.Property(e => e.putanja).HasMaxLength(500);
+                entity.HasIndex(e => new { e.userId, e.isDeleted, e.kreirano });
             });
         }
     }

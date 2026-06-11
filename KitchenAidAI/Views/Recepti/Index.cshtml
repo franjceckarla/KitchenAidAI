@@ -1,7 +1,8 @@
-@model IReadOnlyList<KitchenAidAI.Models.Recept>
+@model IReadOnlyList<KitchenAidAI.Models.DTOs.ReceptDto>
 
 @{
     ViewData["Title"] = "Recepti";
+    var query = Context.Request.Query;
 }
 
 <section class="hero-section">
@@ -11,18 +12,99 @@
 
 <div class="row g-4">
     <div class="col-12">
-        <article class="card-y2k" style="max-width: 520px;">
+        <article class="card-y2k" style="max-width: 920px;">
             <h2>Pretraga</h2>
-            <p>Pronađi recept prema nazivu ili opisu.</p>
-            <input type="search"
-                   class="form-control"
-                   placeholder="Pretraži recepte..."
-                   data-search-input
-                   data-search-url="@Url.Action("Index", "Recepti")"
-                   data-search-target="#recipe-cards" />
-            <div class="mt-3">
-                <a class="btn btn-y2k" asp-controller="Recepti" asp-action="Create">Dodaj recept</a>
-            </div>
+            <p>Pronađi recepte prema nazivu, vremenu kuhanja ili tezini.</p>
+            <form method="get"
+                  data-search-form
+                  data-search-url="@Url.Action("Index", "Recepti")"
+                  data-search-target="#recipe-cards">
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <input type="search"
+                               name="search"
+                               class="form-control"
+                               placeholder="Pretraži recepte..."
+                               value="@query["search"]" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <select name="tezina" class="form-control">
+                            <option value="">Težina (sve)</option>
+                            @foreach (var value in Enum.GetValues<KitchenAidAI.Models.Enums.TezinaRecepta>())
+                            {
+                                <option value="@value" selected="@(query["tezina"] == value.ToString())">@value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <input type="number"
+                               name="minVrijeme"
+                               class="form-control"
+                               placeholder="Min. vrijeme (min)"
+                               value="@query["minVrijeme"]"
+                               min="0"
+                               step="1" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <input type="number"
+                               name="maxVrijeme"
+                               class="form-control"
+                               placeholder="Max. vrijeme (min)"
+                               value="@query["maxVrijeme"]"
+                               min="0"
+                               step="1" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <input type="number"
+                               name="minPorcija"
+                               class="form-control"
+                               placeholder="Min. porcija"
+                               value="@query["minPorcija"]"
+                               min="1"
+                               step="1" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <input type="number"
+                               name="maxPorcija"
+                               class="form-control"
+                               placeholder="Max. porcija"
+                               value="@query["maxPorcija"]"
+                               min="1"
+                               step="1" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <input type="date"
+                               name="odDatuma"
+                               class="form-control"
+                               value="@query["odDatuma"]" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <input type="date"
+                               name="doDatuma"
+                               class="form-control"
+                               value="@query["doDatuma"]" />
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <select name="sortBy" class="form-control">
+                            <option value="">Sortiraj po...</option>
+                            <option value="naziv" selected="@(query["sortBy"] == "naziv")">Naziv</option>
+                            <option value="vrijemeKuhanja" selected="@(query["sortBy"] == "vrijemeKuhanja")">Vrijeme kuhanja</option>
+                            <option value="brojPorcija" selected="@(query["sortBy"] == "brojPorcija")">Broj porcija</option>
+                            <option value="kreirano" selected="@(query["sortBy"] == "kreirano")">Datum</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <select name="sortDir" class="form-control">
+                            <option value="asc" selected="@(query["sortDir"] != "desc")">Uzlazno</option>
+                            <option value="desc" selected="@(query["sortDir"] == "desc")">Silazno</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a class="btn btn-y2k" asp-controller="Recepti" asp-action="Create">Dodaj recept</a>
+                    <a class="btn btn-y2k btn-y2k-secondary" href="@Url.Action("Index", "Recepti")">Resetiraj</a>
+                </div>
+            </form>
         </article>
     </div>
     <div class="col-12">

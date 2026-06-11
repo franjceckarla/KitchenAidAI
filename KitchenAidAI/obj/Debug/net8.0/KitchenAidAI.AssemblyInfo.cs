@@ -10,11 +10,12 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
 [assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("5798742d-900f-4bcc-a115-379f83512480")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e55a30604d8bcfabb2c06c1802f59ed426da9416")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8d7abc05326a0ae838cf55f8011c50534a8c25ab")]
 [assembly: System.Reflection.AssemblyProductAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KitchenAidAI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

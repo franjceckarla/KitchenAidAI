@@ -3,15 +3,23 @@
 @{
     ViewData["Title"] = "Prijava";
     Layout = "_LayoutLogin";
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+    var googleLoginEnabled = ViewBag.GoogleLoginEnabled as bool? ?? false;
+    var facebookLoginEnabled = ViewBag.FacebookLoginEnabled as bool? ?? false;
+    var microsoftLoginEnabled = ViewBag.MicrosoftLoginEnabled as bool? ?? false;
 }
 
 <section class="hero-section">
     <h1>Prijava</h1>
-    <p class="lead">Unesite korisničko ime i lozinku za nastavak.</p>
+    <p class="lead">Prijavite se korisničkim računom ili preko Google, Facebook ili Microsoft računa.</p>
 </section>
 
 <div class="main-cta-section">
     <article class="card-y2k cta-card" style="width: min(420px, 100%);">
+        @if (TempData["Warning"] is string warning)
+        {
+            <div class="alert alert-warning" role="alert">@warning</div>
+        }
         <form asp-action="Login" method="post" class="row g-3">
             @Html.AntiForgeryToken()
             <div class="col-12">
@@ -32,5 +40,37 @@
                 <a asp-controller="Auth" asp-action="Register" class="btn btn-y2k btn-y2k-secondary">Registracija</a>
             </div>
         </form>
+
+        <hr class="my-4" />
+
+        @if (googleLoginEnabled || facebookLoginEnabled || microsoftLoginEnabled)
+        {
+            <div class="d-grid gap-2">
+                @if (googleLoginEnabled)
+                {
+                    <form asp-action="ExternalLogin" method="get">
+                        <input type="hidden" name="provider" value="Google" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-y2k btn-y2k-secondary w-100">Nastavi s Google računom</button>
+                    </form>
+                }
+                @if (facebookLoginEnabled)
+                {
+                    <form asp-action="ExternalLogin" method="get">
+                        <input type="hidden" name="provider" value="Facebook" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-y2k btn-y2k-secondary w-100">Nastavi s Facebook računom</button>
+                    </form>
+                }
+                @if (microsoftLoginEnabled)
+                {
+                    <form asp-action="ExternalLogin" method="get">
+                        <input type="hidden" name="provider" value="Microsoft" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-y2k btn-y2k-secondary w-100">Nastavi s Microsoft računom</button>
+                    </form>
+                }
+            </div>
+        }
     </article>
 </div>

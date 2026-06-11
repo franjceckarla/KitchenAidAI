@@ -1,7 +1,9 @@
-@model IReadOnlyList<KitchenAidAI.Models.User>
+@model IReadOnlyList<KitchenAidAI.Models.DTOs.UserDto>
 
 @{
     ViewData["Title"] = "Kuharice";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var query = Context.Request.Query;
 }
 
 <section class="hero-section">
@@ -11,15 +13,73 @@
 
 <div class="row g-4">
     <div class="col-12">
-        <article class="card-y2k" style="max-width: 520px;">
+        <article class="card-y2k" style="max-width: 920px;">
             <h2>Pretraga</h2>
             <p>Pronađi kuharicu prema nazivu ili korisniku.</p>
-            <input type="search"
-                   class="form-control"
-                   placeholder="Pretraži kuharice..."
-                   data-search-input
-                   data-search-url="@Url.Action("Index", "Kuharice")"
-                   data-search-target="#cookbook-cards" />
+            <form method="get"
+                  data-search-form
+                  data-search-url="@Url.Action("Index", "Kuharice")"
+                  data-search-target="#cookbook-cards">
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <input type="search"
+                               name="search"
+                               class="form-control"
+                               placeholder="Pretraži kuharice..."
+                               value="@query["search"]" />
+                    </div>
+                    @if (isAdmin)
+                    {
+                        <div class="col-6 col-lg-3">
+                            <input type="text"
+                                   name="username"
+                                   class="form-control"
+                                   placeholder="Username"
+                                   value="@query["username"]" />
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <input type="text"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="Email"
+                                   value="@query["email"]" />
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <select name="sortBy" class="form-control">
+                                <option value="">Sortiraj po...</option>
+                                <option value="username" selected="@(query["sortBy"] == "username")">Username</option>
+                                <option value="email" selected="@(query["sortBy"] == "email")">Email</option>
+                                <option value="kreirano" selected="@(query["sortBy"] == "kreirano")">Datum</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <select name="sortDir" class="form-control">
+                                <option value="asc" selected="@(query["sortDir"] != "desc")">Uzlazno</option>
+                                <option value="desc" selected="@(query["sortDir"] == "desc")">Silazno</option>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex flex-wrap gap-2">
+                            <label class="d-flex align-items-center gap-2">
+                                <input type="checkbox"
+                                       name="includeAdmins"
+                                       value="true"
+                                       @(query["includeAdmins"] == "true" ? "checked" : null) />
+                                Uključi admin korisnike
+                            </label>
+                            <label class="d-flex align-items-center gap-2">
+                                <input type="checkbox"
+                                       name="includeDeleted"
+                                       value="true"
+                                       @(query["includeDeleted"] == "true" ? "checked" : null) />
+                                Uključi obrisane
+                            </label>
+                        </div>
+                    }
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a class="btn btn-y2k btn-y2k-secondary" href="@Url.Action("Index", "Kuharice")">Resetiraj</a>
+                </div>
+            </form>
         </article>
     </div>
     <div class="col-12">

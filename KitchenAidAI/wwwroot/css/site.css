@@ -43,3 +43,20 @@ body {
 .login-shell {
   width: min(680px, 100%);
 }
+
+.upload-dropzone {
+  border: 2px dashed #7aa7ff;
+  border-radius: 14px;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.72);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.upload-dropzone.is-dragover {
+  border-color: #2f6ce5;
+  background: rgba(194, 218, 255, 0.45);
+}
+
+.upload-status {
+  min-height: 1.5rem;
+}

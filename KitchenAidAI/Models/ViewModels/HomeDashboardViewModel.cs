@@ -1,9 +1,9 @@
-using KitchenAidAI.Models;
+using KitchenAidAI.Models.DTOs;
 
 namespace KitchenAidAI.Models.ViewModels
 {
     public class HomeDashboardViewModel
     {
-        public IReadOnlyList<User> Users { get; set; } = new List<User>();
+        public IReadOnlyList<UserDto> Users { get; set; } = new List<UserDto>();
     }
 }

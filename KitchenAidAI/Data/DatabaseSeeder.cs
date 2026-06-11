@@ -10,10 +10,16 @@ namespace KitchenAidAI.Data
     public class DatabaseSeeder
     {
         private readonly KitchenAidDbContext _dbContext;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
+        private readonly IPasswordHasher<AppUser> _appUserPasswordHasher;
 
-        public DatabaseSeeder(KitchenAidDbContext dbContext)
+        public DatabaseSeeder(KitchenAidDbContext dbContext, UserManager<AppUser> userManager, RoleManager<IdentityRole<int>> roleManager, IPasswordHasher<AppUser> appUserPasswordHasher)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _appUserPasswordHasher = appUserPasswordHasher;
         }
 
         public async Task SeedAsync()
@@ -29,6 +35,41 @@ namespace KitchenAidAI.Data
                 await _dbContext.SaveChangesAsync();
             }
 
+            // Ensure roles
+            var roles = new[] { "Admin", "User" };
+            foreach (var role in roles)
+            {
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole<int>(role));
+                }
+            }
+
+            // Seed an admin AppUser if none exists
+            var anyAppUsers = await _userManager.Users.AnyAsync();
+            if (!anyAppUsers)
+            {
+                var admin = new AppUser
+                {
+                    UserName = "admin",
+                    Email = "admin@kitchenaid.local",
+                    ime = "Admin",
+                    prezime = "Administrator",
+                    preferencijaPrehrane = PreferencijaPrehrane.Omnivorte,
+                    isAdmin = true,
+                    kreirano = DateTime.Now
+                };
+
+                var result = await _userManager.CreateAsync(admin);
+                if (result.Succeeded)
+                {
+                    admin.PasswordHash = _appUserPasswordHasher.HashPassword(admin, "admin");
+                    await _userManager.UpdateAsync(admin);
+                    await _userManager.AddToRoleAsync(admin, "Admin");
+                }
+            }
+
+            // Legacy seed for mock data into legacy Users/Recepti as before
             var passwordHasher = new PasswordHasher<User>();
             if (!await _dbContext.Users.AnyAsync())
             {

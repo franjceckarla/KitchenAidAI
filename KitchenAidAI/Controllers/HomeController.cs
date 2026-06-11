@@ -3,12 +3,15 @@ using KitchenAidAI.Data;
 using KitchenAidAI.Filters;
 using KitchenAidAI.Helpers;
 using KitchenAidAI.Models;
+using KitchenAidAI.Models.DTOs;
 using KitchenAidAI.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KitchenAidAI.Controllers
 {
+    [Authorize]
     [RequireSession]
     public class HomeController : Controller
     {
@@ -23,7 +26,7 @@ namespace KitchenAidAI.Controllers
 
         public IActionResult Index()
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
             var usersQuery = _dbContext.Users
@@ -57,7 +60,7 @@ namespace KitchenAidAI.Controllers
 
             var vm = new HomeDashboardViewModel
             {
-                Users = users
+                Users = users.Select(user => user.ToDto()).ToList()
             };
 
             ViewBag.CurrentUserId = currentUserId;

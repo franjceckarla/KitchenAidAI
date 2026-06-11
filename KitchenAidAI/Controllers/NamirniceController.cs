@@ -1,31 +1,29 @@
-using KitchenAidAI.Data;
 using KitchenAidAI.Filters;
 using KitchenAidAI.Helpers;
-using KitchenAidAI.Models;
+using KitchenAidAI.Models.DTOs;
 using KitchenAidAI.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace KitchenAidAI.Controllers
 {
+    [Authorize]
     [RequireSession]
-    public class NamirniceController : Controller
+    public class NamirniceController : MvcApiControllerBase
     {
-        private readonly KitchenAidDbContext _dbContext;
-
-        public NamirniceController(KitchenAidDbContext dbContext)
+        public NamirniceController(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory)
         {
-            _dbContext = dbContext;
         }
 
         [HttpGet]
-        public IActionResult Create(int friziderId)
+        public async Task<IActionResult> Create(int friziderId)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
-            var fridge = _dbContext.Frizideri.AsNoTracking().FirstOrDefault(currentFridge => currentFridge.id == friziderId && (isAdmin || !currentFridge.isDeleted));
+            var fridge = await GetFridgeAsync(friziderId, isAdmin);
             if (fridge is null)
             {
                 return NotFound();
@@ -39,25 +37,26 @@ namespace KitchenAidAI.Controllers
             ViewBag.FriziderId = friziderId;
             ViewBag.UserId = fridge.userId;
             PopulateDropdowns();
-            return View(new Namirnica { friziderId = friziderId });
+            return View(new NamirnicaFormDto { friziderId = friziderId });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Namirnica namirnica)
+        public async Task<IActionResult> Create(NamirnicaFormDto namirnica)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
             if (!ModelState.IsValid)
             {
                 ViewBag.FriziderId = namirnica.friziderId;
-                ViewBag.UserId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
+                var fridgeForInvalid = await GetFridgeAsync(namirnica.friziderId, isAdmin);
+                ViewBag.UserId = fridgeForInvalid?.userId;
                 PopulateDropdowns();
                 return View(namirnica);
             }
 
-            var fridge = _dbContext.Frizideri.FirstOrDefault(currentFridge => currentFridge.id == namirnica.friziderId && (isAdmin || !currentFridge.isDeleted));
+            var fridge = await GetFridgeAsync(namirnica.friziderId, isAdmin);
             if (fridge is null)
             {
                 return NotFound();
@@ -68,53 +67,66 @@ namespace KitchenAidAI.Controllers
                 return NotFound();
             }
 
-            _dbContext.Namirnice.Add(namirnica);
-            _dbContext.SaveChanges();
+            var response = await PostApiResponseAsync<NamirnicaDto>("/api/namirnice", namirnica);
+            if (response?.success != true)
+            {
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo spremanje namirnice.");
+                ViewBag.FriziderId = namirnica.friziderId;
+                ViewBag.UserId = fridge.userId;
+                PopulateDropdowns();
+                return View(namirnica);
+            }
 
-            return RedirectToAction("Index", "Frizider", new { userId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault() });
+            return RedirectToAction("Index", "Frizider", new { userId = fridge.userId });
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
-            var namirnica = _dbContext.Namirnice
-                .Include(currentItem => currentItem.frizider)
-                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
-            if (namirnica is null)
+            var item = await GetNamirnicaAsync(id, isAdmin);
+            if (item is null)
             {
                 return NotFound();
             }
 
-            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
+            var fridge = await GetFridgeAsync(item.friziderId, isAdmin);
+            if (!isAdmin && fridge?.userId != currentUserId)
             {
                 return NotFound();
             }
 
-            ViewBag.FriziderId = namirnica.friziderId;
-            ViewBag.UserId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
+            ViewBag.FriziderId = item.friziderId;
+            ViewBag.UserId = fridge?.userId;
             PopulateDropdowns();
-            return View(namirnica);
+            return View(new NamirnicaFormDto
+            {
+                id = item.id,
+                friziderId = item.friziderId,
+                naziv = item.naziv,
+                kategorija = item.kategorija,
+                mjera = item.mjera,
+                kolicinaUFrizideru = item.kolicinaUFrizideru
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Namirnica input)
+        public async Task<IActionResult> Edit(int id, NamirnicaFormDto input)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
-            var namirnica = _dbContext.Namirnice
-                .Include(currentItem => currentItem.frizider)
-                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
-            if (namirnica is null)
+            var existing = await GetNamirnicaAsync(id, isAdmin);
+            if (existing is null)
             {
                 return NotFound();
             }
 
-            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
+            var fridge = await GetFridgeAsync(existing.friziderId, isAdmin);
+            if (!isAdmin && fridge?.userId != currentUserId)
             {
                 return NotFound();
             }
@@ -122,71 +134,101 @@ namespace KitchenAidAI.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.FriziderId = input.friziderId;
-                ViewBag.UserId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == input.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
+                ViewBag.UserId = fridge?.userId;
                 PopulateDropdowns();
                 return View(input);
             }
 
-            namirnica.naziv = input.naziv;
-            namirnica.kategorija = input.kategorija;
-            namirnica.mjera = input.mjera;
-            namirnica.kolicinaUFrizideru = input.kolicinaUFrizideru;
-            namirnica.friziderId = input.friziderId;
+            var response = await PutApiResponseAsync<NamirnicaDto>($"/api/namirnice/{id}", input);
+            if (response?.success != true)
+            {
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo spremanje namirnice.");
+                ViewBag.FriziderId = input.friziderId;
+                ViewBag.UserId = fridge?.userId;
+                PopulateDropdowns();
+                return View(input);
+            }
 
-            _dbContext.SaveChanges();
-
-            return RedirectToAction("Index", "Frizider", new { userId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == input.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault() });
+            return RedirectToAction("Index", "Frizider", new { userId = fridge?.userId });
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
-            var namirnica = _dbContext.Namirnice
-                .Include(currentItem => currentItem.frizider)
-                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
-            if (namirnica is null)
+            var item = await GetNamirnicaAsync(id, isAdmin);
+            if (item is null)
             {
                 return NotFound();
             }
 
-            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
+            var fridge = await GetFridgeAsync(item.friziderId, isAdmin);
+            if (!isAdmin && fridge?.userId != currentUserId)
             {
                 return NotFound();
             }
-            
-            ViewBag.UserId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
-            return View(namirnica);
+
+            ViewBag.UserId = fridge?.userId;
+            return View(item);
         }
 
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
 
-            var namirnica = _dbContext.Namirnice
-                .Include(currentItem => currentItem.frizider)
-                .FirstOrDefault(currentItem => currentItem.id == id && (isAdmin || !currentItem.isDeleted));
-            if (namirnica is null)
+            var item = await GetNamirnicaAsync(id, isAdmin);
+            if (item is null)
             {
                 return NotFound();
             }
 
-            if (!isAdmin && namirnica.frizider?.userId != currentUserId)
+            var fridge = await GetFridgeAsync(item.friziderId, isAdmin);
+            if (!isAdmin && fridge?.userId != currentUserId)
             {
                 return NotFound();
             }
 
-            var userId = _dbContext.Frizideri.Where(currentFridge => currentFridge.id == namirnica.friziderId).Select(currentFridge => currentFridge.userId).FirstOrDefault();
-            namirnica.isDeleted = true;
-            _dbContext.SaveChanges();
+            var response = await DeleteApiResponseAsync<NamirnicaDto>($"/api/namirnice/{id}");
+            if (response?.success != true)
+            {
+                TempData["Warning"] = GetAlertMessage(response, "Neuspjelo brisanje namirnice.");
+            }
 
-            return RedirectToAction("Index", "Frizider", new { userId = userId });
+            return RedirectToAction("Index", "Frizider", new { userId = fridge?.userId });
+        }
+
+        private async Task<FriziderDto?> GetFridgeAsync(int friziderId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<FriziderDto>($"/api/frizideri/{friziderId}");
+                return response?.success == true ? response.data : null;
+            }
+
+            var publicResponse = await GetApiResponseAsync<FriziderPublicDto>($"/api/frizideri/{friziderId}");
+            return publicResponse?.success == true && publicResponse.data is not null
+                ? publicResponse.data.ToDto()
+                : null;
+        }
+
+        private async Task<NamirnicaDto?> GetNamirnicaAsync(int id, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<NamirnicaDto>($"/api/namirnice/{id}");
+                return response?.success == true ? response.data : null;
+            }
+
+            var publicResponse = await GetApiResponseAsync<NamirnicaPublicDto>($"/api/namirnice/{id}");
+            return publicResponse?.success == true && publicResponse.data is not null
+                ? publicResponse.data.ToDto()
+                : null;
         }
 
         private void PopulateDropdowns()

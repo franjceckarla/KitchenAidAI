@@ -1,8 +1,8 @@
-@model KitchenAidAI.Models.User
+@model KitchenAidAI.Models.DTOs.UserEditDto
 
 @{
     ViewData["Title"] = "Uredi korisnika";
-    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
+    var isAdmin = ViewBag.IsAdmin as bool? ?? Context.User.IsInRole("Admin");
 }
 
 <section class="hero-section">

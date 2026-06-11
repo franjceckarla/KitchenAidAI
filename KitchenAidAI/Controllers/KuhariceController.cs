@@ -1,132 +1,275 @@
-using KitchenAidAI.Data;
 using KitchenAidAI.Filters;
 using KitchenAidAI.Helpers;
-using Microsoft.EntityFrameworkCore;
+using KitchenAidAI.Models.DTOs;
+using KitchenAidAI.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KitchenAidAI.Controllers
 {
+    [Authorize]
     [RequireSession]
-    public class KuhariceController : Controller
+    public class KuhariceController : MvcApiControllerBase
     {
-        private readonly KitchenAidDbContext _dbContext;
-
-        public KuhariceController(KitchenAidDbContext dbContext)
+        public KuhariceController(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory)
         {
-            _dbContext = dbContext;
         }
 
-        public IActionResult Index(string? search)
+        public async Task<IActionResult> Index(
+            string? search,
+            string? username,
+            string? email,
+            string? sortBy,
+            string? sortDir,
+            bool includeAdmins = false,
+            bool? includeDeleted = null)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
-            var currentUserId = AuthSession.GetUserId(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
 
-            var usersQuery = _dbContext.Users
-                .Include(user => user.kuharica)
-                .ThenInclude(cookbook => cookbook!.receptKuharice)
-                .AsQueryable();
+            var parameters = new List<string>();
+            void AddParam(string name, string? value)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    parameters.Add($"{name}={Uri.EscapeDataString(value)}");
+                }
+            }
+
+            AddParam("search", search);
+            if (isAdmin)
+            {
+                AddParam("username", username);
+                AddParam("email", email);
+                AddParam("sortBy", sortBy);
+                AddParam("sortDir", sortDir);
+                AddParam("includeAdmins", includeAdmins ? "true" : null);
+                AddParam("includeDeleted", includeDeleted.HasValue ? includeDeleted.Value.ToString().ToLowerInvariant() : null);
+            }
+
+            var query = "/api/users" + (parameters.Count > 0 ? $"?{string.Join("&", parameters)}" : string.Empty);
 
             if (isAdmin)
             {
-                usersQuery = usersQuery.Where(user => !user.isAdmin);
-                if (!string.IsNullOrWhiteSpace(search))
+                var response = await GetApiResponseAsync<List<UserDto>>(query);
+                var data = response?.success == true && response.data is not null
+                    ? response.data
+                    : new List<UserDto>();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    usersQuery = usersQuery.Where(user =>
-                        (user.username ?? string.Empty).Contains(search)
-                        || (user.kuharica != null && (user.kuharica.naziv ?? string.Empty).Contains(search)));
+                    return PartialView("_CookbookCards", data);
                 }
-            }
-            else if (currentUserId.HasValue)
-            {
-                usersQuery = usersQuery.Where(user =>
-                    user.id == currentUserId.Value
-                    && !user.isDeleted
-                    && user.kuharica != null
-                    && !user.kuharica.isDeleted);
+
+                return View(data);
             }
 
-            var users = usersQuery.AsNoTracking().ToList();
+            var publicResponse = await GetApiResponseAsync<List<UserPublicDto>>(query);
+            var items = publicResponse?.success == true && publicResponse.data is not null
+                ? publicResponse.data.Select(user => user.ToDto()).ToList()
+                : new List<UserDto>();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_CookbookCards", users);
+                return PartialView("_CookbookCards", items);
             }
 
-            return View(users);
+            return View(items);
         }
 
-        public IActionResult Details(int userId)
+        public async Task<IActionResult> Details(int userId)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
             if (!isAdmin && currentUserId != userId)
             {
                 return NotFound();
             }
 
-            var user = _dbContext.Users
-                .Include(currentUser => currentUser.kuharica)
-                .ThenInclude(cookbook => cookbook!.receptKuharice)
-                .ThenInclude(join => join.recept)
-                .AsNoTracking()
-                .FirstOrDefault(currentUser => currentUser.id == userId && (isAdmin || !currentUser.isDeleted));
-            if (user is null)
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<UserDto>($"/api/users/{userId}");
+                if (response?.success != true || response.data is null)
+                {
+                    return NotFound();
+                }
+
+                var cookbook = response.data.kuharica;
+                if (cookbook is null || cookbook.isDeleted)
+                {
+                    return NotFound();
+                }
+
+                ViewBag.UserName = response.data.username;
+                ViewBag.UserId = response.data.id;
+                return View(cookbook);
+            }
+
+            var publicResponse = await GetApiResponseAsync<UserPublicDto>($"/api/users/{userId}");
+            if (publicResponse?.success != true || publicResponse.data is null)
             {
                 return NotFound();
             }
 
-            var cookbook = user.kuharica;
-            if (cookbook is null || (!isAdmin && cookbook.isDeleted))
+            var publicUser = publicResponse.data.ToDto();
+            var publicCookbook = publicUser.kuharica;
+            if (publicCookbook is null)
             {
                 return NotFound();
             }
 
-            if (!isAdmin)
-            {
-                cookbook.receptKuharice = cookbook.receptKuharice
-                    .Where(join => !join.isDeleted && join.recept is not null && !join.recept.isDeleted)
-                    .ToList();
-            }
-
-            ViewBag.UserName = user.username;
-            ViewBag.UserId = user.id;
-            return View(cookbook);
+            ViewBag.UserName = publicUser.username;
+            ViewBag.UserId = publicUser.id;
+            return View(publicCookbook);
         }
 
-        public IActionResult Search(int userId, string? search)
+        public async Task<IActionResult> Search(
+            int userId,
+            string? search,
+            TezinaRecepta? tezina,
+            double? minVrijeme,
+            double? maxVrijeme,
+            int? minPorcija,
+            int? maxPorcija,
+            DateTime? odDatuma,
+            DateTime? doDatuma,
+            string? sortBy,
+            string? sortDir)
         {
-            var isAdmin = AuthSession.IsAdmin(HttpContext);
+            var isAdmin = User.IsInRole("Admin");
             var currentUserId = AuthSession.GetUserId(HttpContext);
             if (!isAdmin && currentUserId != userId)
             {
                 return NotFound();
             }
 
-            var cookbook = _dbContext.Kuharice
-                .Include(currentCookbook => currentCookbook.receptKuharice)
-                .ThenInclude(join => join.recept)
-                .AsNoTracking()
-                .FirstOrDefault(currentCookbook => currentCookbook.userId == userId && (isAdmin || !currentCookbook.isDeleted));
-            if (cookbook is null)
+            var cookbookId = await GetCookbookIdAsync(userId, isAdmin);
+            if (!cookbookId.HasValue)
             {
                 return NotFound();
             }
 
-            var items = cookbook.receptKuharice.AsQueryable();
-            if (!isAdmin)
+            var apiPath = $"/api/recept-kuharice?kuharicaId={cookbookId.Value}";
+            if (isAdmin)
             {
-                items = items.Where(join => !join.isDeleted && join.recept != null && !join.recept.isDeleted);
+                var response = await GetApiResponseAsync<List<ReceptKuharicaDto>>(apiPath);
+                var items = response?.success == true && response.data is not null
+                    ? response.data
+                    : new List<ReceptKuharicaDto>();
+
+                items = ApplyRecipeFilters(items, search, tezina, minVrijeme, maxVrijeme, minPorcija, maxPorcija, odDatuma, doDatuma);
+                items = ApplyRecipeSorting(items, sortBy, sortDir);
+
+                ViewBag.IsAdmin = true;
+                return PartialView("_CookbookRecipes", items);
             }
+
+            var publicResponse = await GetApiResponseAsync<List<ReceptKuharicaPublicDto>>(apiPath);
+            var publicItems = publicResponse?.success == true && publicResponse.data is not null
+                ? publicResponse.data.Select(join => join.ToDto()).ToList()
+                : new List<ReceptKuharicaDto>();
+
+            publicItems = ApplyRecipeFilters(publicItems, search, tezina, minVrijeme, maxVrijeme, minPorcija, maxPorcija, odDatuma, doDatuma);
+            publicItems = ApplyRecipeSorting(publicItems, sortBy, sortDir);
+
+            ViewBag.IsAdmin = false;
+            return PartialView("_CookbookRecipes", publicItems);
+        }
+
+        private static List<ReceptKuharicaDto> ApplyRecipeFilters(
+            List<ReceptKuharicaDto> items,
+            string? search,
+            TezinaRecepta? tezina,
+            double? minVrijeme,
+            double? maxVrijeme,
+            int? minPorcija,
+            int? maxPorcija,
+            DateTime? odDatuma,
+            DateTime? doDatuma)
+        {
+            var filtered = items.Where(join => join.recept != null);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                items = items.Where(join => join.recept != null
-                    && ((join.recept.naziv ?? string.Empty).Contains(search)
-                        || (join.recept.opis ?? string.Empty).Contains(search)));
+                filtered = filtered.Where(join => join.recept != null
+                    && (((join.recept.naziv ?? string.Empty).Contains(search)
+                        || (join.recept.opis ?? string.Empty).Contains(search))));
             }
 
-            ViewBag.IsAdmin = isAdmin;
-            return PartialView("_CookbookRecipes", items.ToList());
+            if (tezina.HasValue)
+            {
+                filtered = filtered.Where(join => join.recept != null && join.recept.tezina == tezina.Value);
+            }
+
+            if (minVrijeme.HasValue)
+            {
+                filtered = filtered.Where(join => join.recept != null && join.recept.vrijemeKuhanja >= minVrijeme.Value);
+            }
+
+            if (maxVrijeme.HasValue)
+            {
+                filtered = filtered.Where(join => join.recept != null && join.recept.vrijemeKuhanja <= maxVrijeme.Value);
+            }
+
+            if (minPorcija.HasValue)
+            {
+                filtered = filtered.Where(join => join.recept != null && join.recept.brojPorcija >= minPorcija.Value);
+            }
+
+            if (maxPorcija.HasValue)
+            {
+                filtered = filtered.Where(join => join.recept != null && join.recept.brojPorcija <= maxPorcija.Value);
+            }
+
+            if (odDatuma.HasValue)
+            {
+                var fromDate = odDatuma.Value.Date;
+                filtered = filtered.Where(join => join.kreirano >= fromDate);
+            }
+
+            if (doDatuma.HasValue)
+            {
+                var toDate = doDatuma.Value.Date;
+                filtered = filtered.Where(join => join.kreirano <= toDate);
+            }
+
+            return filtered.ToList();
+        }
+
+        private static List<ReceptKuharicaDto> ApplyRecipeSorting(
+            List<ReceptKuharicaDto> items,
+            string? sortBy,
+            string? sortDir)
+        {
+            var sortDescending = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
+            return sortBy switch
+            {
+                "naziv" => sortDescending
+                    ? items.OrderByDescending(join => join.recept?.naziv).ToList()
+                    : items.OrderBy(join => join.recept?.naziv).ToList(),
+                "vrijemeKuhanja" => sortDescending
+                    ? items.OrderByDescending(join => join.recept?.vrijemeKuhanja ?? 0).ToList()
+                    : items.OrderBy(join => join.recept?.vrijemeKuhanja ?? 0).ToList(),
+                "brojPorcija" => sortDescending
+                    ? items.OrderByDescending(join => join.recept?.brojPorcija ?? 0).ToList()
+                    : items.OrderBy(join => join.recept?.brojPorcija ?? 0).ToList(),
+                "kreirano" => sortDescending
+                    ? items.OrderByDescending(join => join.kreirano).ToList()
+                    : items.OrderBy(join => join.kreirano).ToList(),
+                _ => items.OrderBy(join => join.id).ToList()
+            };
+        }
+
+        private async Task<int?> GetCookbookIdAsync(int userId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                var response = await GetApiResponseAsync<UserDto>($"/api/users/{userId}");
+                return response?.success == true ? response.data?.kuharica?.id : null;
+            }
+
+            var publicResponse = await GetApiResponseAsync<UserPublicDto>($"/api/users/{userId}");
+            return publicResponse?.success == true ? publicResponse.data?.kuharica?.id : null;
         }
     }
 }

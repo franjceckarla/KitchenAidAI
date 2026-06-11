@@ -1,6 +1,11 @@
 using KitchenAidAI.Data;
-using KitchenAidAI.Helpers;
+using KitchenAidAI.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Globalization;
@@ -9,13 +14,74 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSession(options =>
+builder.Services.AddHttpClient();
+var authenticationBuilder = builder.Services.AddAuthentication(options =>
 {
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+})
+.AddCookie(IdentityConstants.ApplicationScheme, options =>
+{
+    options.LoginPath = "/Auth/Login";
+    options.LogoutPath = "/Auth/Logout";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    options.SlidingExpiration = false;
+})
+.AddCookie(IdentityConstants.ExternalScheme, options =>
+{
+    options.Cookie.Name = ".KitchenAidAI.External";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    options.SlidingExpiration = false;
 });
 
+// Register ASP.NET Core Identity Core (AppUser + roles)
+builder.Services.AddIdentityCore<AppUser>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.SignIn.RequireConfirmedAccount = false;
+})
+    .AddRoles<IdentityRole<int>>()
+    .AddSignInManager()
+    .AddEntityFrameworkStores<KitchenAidDbContext>()
+    .AddDefaultTokenProviders();
+
+var googleSection = builder.Configuration.GetSection("Authentication:Google");
+if (!string.IsNullOrWhiteSpace(googleSection["ClientId"]) && !string.IsNullOrWhiteSpace(googleSection["ClientSecret"]))
+{
+    authenticationBuilder.AddGoogle(options =>
+    {
+        options.ClientId = googleSection["ClientId"]!;
+        options.ClientSecret = googleSection["ClientSecret"]!;
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+    });
+}
+
+var facebookSection = builder.Configuration.GetSection("Authentication:Facebook");
+if (!string.IsNullOrWhiteSpace(facebookSection["AppId"]) && !string.IsNullOrWhiteSpace(facebookSection["AppSecret"]))
+{
+    authenticationBuilder.AddFacebook(options =>
+    {
+        options.AppId = facebookSection["AppId"]!;
+        options.AppSecret = facebookSection["AppSecret"]!;
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+    });
+}
+
+var microsoftSection = builder.Configuration.GetSection("Authentication:Microsoft");
+if (!string.IsNullOrWhiteSpace(microsoftSection["ClientId"]) && !string.IsNullOrWhiteSpace(microsoftSection["ClientSecret"]))
+{
+    authenticationBuilder.AddMicrosoftAccount(options =>
+    {
+        options.ClientId = microsoftSection["ClientId"]!;
+        options.ClientSecret = microsoftSection["ClientSecret"]!;
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+    });
+}
 var connectionString = builder.Configuration.GetConnectionString("KitchenAidConnection")
     ?? throw new InvalidOperationException("Connection string 'KitchenAidConnection' was not found.");
 
@@ -39,9 +105,11 @@ app.UseRequestLocalization(localizationOptions);
 
 app.UseRouting();
 
-app.UseSession();
+app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "root",
@@ -98,6 +166,11 @@ app.MapControllerRoute(
     defaults: new { controller = "Kuharice", action = "Index" });
 
 app.MapControllerRoute(
+    name: "datoteke",
+    pattern: "datoteke",
+    defaults: new { controller = "Datoteke", action = "Index" });
+
+app.MapControllerRoute(
     name: "frizider-po-korisniku",
     pattern: "frizider/{userId:int}",
     defaults: new { controller = "Frizider", action = "Index" });
@@ -108,8 +181,13 @@ app.MapControllerRoute(
 
 using (var scope = app.Services.CreateScope())
 {
-    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    await seeder.SeedAsync();
+    if (!app.Environment.IsEnvironment("Testing"))
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
 }
 
 app.Run();
+
+public partial class Program { }

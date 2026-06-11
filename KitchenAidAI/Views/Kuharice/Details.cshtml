@@ -1,8 +1,9 @@
-@model KitchenAidAI.Models.Kuharica
+@model KitchenAidAI.Models.DTOs.KuharicaDto
 
 @{
     ViewData["Title"] = "Detalji kuharice";
     var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var query = Context.Request.Query;
 }
 
 <section class="hero-section">
@@ -13,15 +14,92 @@
 <div class="main-cta-section">
     <article class="card-y2k" style="width: min(920px, 100%); text-align: left;">
         <h2>Spremljeni recepti</h2>
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            <input type="search"
-                   class="form-control"
-                   style="max-width: 320px;"
-                   placeholder="Pretraži recepte..."
-                   data-search-input
-                   data-search-url="@Url.Action("Search", "Kuharice", new { userId = ViewBag.UserId })"
-                   data-search-target="#cookbook-recipes" />
-        </div>
+        <form method="get"
+              data-search-form
+              data-search-url="@Url.Action("Search", "Kuharice", new { userId = ViewBag.UserId })"
+              data-search-target="#cookbook-recipes">
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-lg-6">
+                    <input type="search"
+                           name="search"
+                           class="form-control"
+                           placeholder="Pretraži recepte..."
+                           value="@query["search"]" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="tezina" class="form-control">
+                        <option value="">Težina (sve)</option>
+                        @foreach (var value in Enum.GetValues<KitchenAidAI.Models.Enums.TezinaRecepta>())
+                        {
+                            <option value="@value" selected="@(query["tezina"] == value.ToString())">@value</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minVrijeme"
+                           class="form-control"
+                           placeholder="Min. vrijeme (min)"
+                           value="@query["minVrijeme"]"
+                           min="0"
+                           step="1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxVrijeme"
+                           class="form-control"
+                           placeholder="Max. vrijeme (min)"
+                           value="@query["maxVrijeme"]"
+                           min="0"
+                           step="1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="minPorcija"
+                           class="form-control"
+                           placeholder="Min. porcija"
+                           value="@query["minPorcija"]"
+                           min="1"
+                           step="1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="number"
+                           name="maxPorcija"
+                           class="form-control"
+                           placeholder="Max. porcija"
+                           value="@query["maxPorcija"]"
+                           min="1"
+                           step="1" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="date"
+                           name="odDatuma"
+                           class="form-control"
+                           value="@query["odDatuma"]" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <input type="date"
+                           name="doDatuma"
+                           class="form-control"
+                           value="@query["doDatuma"]" />
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="sortBy" class="form-control">
+                        <option value="">Sortiraj po...</option>
+                        <option value="naziv" selected="@(query["sortBy"] == "naziv")">Naziv</option>
+                        <option value="vrijemeKuhanja" selected="@(query["sortBy"] == "vrijemeKuhanja")">Vrijeme kuhanja</option>
+                        <option value="brojPorcija" selected="@(query["sortBy"] == "brojPorcija")">Broj porcija</option>
+                        <option value="kreirano" selected="@(query["sortBy"] == "kreirano")">Datum</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select name="sortDir" class="form-control">
+                        <option value="asc" selected="@(query["sortDir"] != "desc")">Uzlazno</option>
+                        <option value="desc" selected="@(query["sortDir"] == "desc")">Silazno</option>
+                    </select>
+                </div>
+            </div>
+        </form>
         @if (Model.receptKuharice is null || !Model.receptKuharice.Any())
         {
             <p>U ovoj kuharici nema spremljenih recepata.</p>

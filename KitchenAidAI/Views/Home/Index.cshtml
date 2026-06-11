@@ -29,6 +29,15 @@
             <a asp-controller="Home" asp-action="Chat" class="btn btn-y2k">Otvori chat</a>
             <p class="card-emoji-strip" aria-hidden="true">💬 🍳 ✨</p>
         </div>
+
+        <div class="card-y2k cta-card">
+            <h2>Upload datoteka</h2>
+            <p>Ucitaj tekstualnu datoteku ili sliku namirnica sa svog racunala ili iz /document mape.</p>
+            <button type="button" class="btn btn-y2k btn-y2k-secondary" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+                Otvori upload
+            </button>
+            <p class="card-emoji-strip" aria-hidden="true">📄 🥕 ⬆️</p>
+        </div>
     }
     <div class="card-y2k cta-card">
         <h2>Frižider</h2>
@@ -58,4 +67,59 @@
         <a asp-controller="Kuharice" asp-action="Index" class="btn btn-y2k btn-y2k-tertiary">Otvori Kuharice</a>
     </div>
 </div>
+
+@if (!isAdmin)
+{
+    <div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadFileModalLabel">Dodaj datoteku</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="upload-file-form">
+                        <div id="upload-dropzone" class="upload-dropzone mb-3" role="button" tabindex="0">
+                            <p class="mb-1"><strong>Povuci datoteku ovdje</strong> ili klikni za odabir s racunala.</p>
+                            <p class="text-muted mb-0">Podrzani su txt i image formati, te ostale datoteke prema potrebi.</p>
+                            <input id="upload-file-input" type="file" class="d-none" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="upload-file-description" class="form-label">Opis datoteke</label>
+                            <input id="upload-file-description" type="text" class="form-control" maxlength="1000" placeholder="Npr. Popis namirnica za sljedeci tjedan" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="document-file-path" class="form-label">Upload iz /document mape</label>
+                            <input id="document-file-path" type="text" class="form-control" list="document-file-suggestions" placeholder="Npr. uploads/sample.txt" autocomplete="off" />
+                            <datalist id="document-file-suggestions"></datalist>
+                            <div class="form-text">Autocomplete vraca datoteke iskljucivo iz server /document mape.</div>
+                        </div>
+
+                        <div id="upload-progress-wrap" class="mb-3 d-none">
+                            <div class="progress" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100">
+                                <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" aria-valuenow="0">0%</div>
+                            </div>
+                        </div>
+
+                        <p id="upload-status" class="upload-status mb-0"></p>
+
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button id="upload-submit-btn" type="submit" class="btn btn-y2k">Upload s racunala</button>
+                            <button id="upload-from-document-btn" type="button" class="btn btn-y2k btn-y2k-secondary">Upload iz /document</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (!isAdmin)
+    {
+        <script src="~/js/home-upload.js" asp-append-version="true"></script>
+    }
+}
 

@@ -37,6 +37,12 @@ namespace KitchenAidAI.Models
         [StringLength(200, ErrorMessage = "Email moze imati najvise 200 znakova.")]
         [RegularExpression(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", ErrorMessage = "Molimo unesite email u ispravnom formatu (npr. ime@domena.com).")]
         public string? email { get; set; }
+        [StringLength(100, ErrorMessage = "Provider moze imati najvise 100 znakova.")]
+        public string? authProvider { get; set; }
+
+        [StringLength(200, ErrorMessage = "Provider key moze imati najvise 200 znakova.")]
+        public string? authProviderKey { get; set; }
+
         public DateTime kreirano { get; set; }
 
         public virtual Frizider? frizider { get; set; }
@@ -46,11 +52,13 @@ namespace KitchenAidAI.Models
         public virtual Kuharica? kuharica { get; set; }
 
         public virtual ICollection<ChatMessage> chatPoruke { get; set; }
+        public virtual ICollection<Datoteka> datoteke { get; set; }
 
         public User()
         {
             kreirano = DateTime.Now;
             chatPoruke = new List<ChatMessage>();
+            datoteke = new List<Datoteka>();
         }
     }
 }

@@ -1,7 +1,7 @@
-@model IReadOnlyList<KitchenAidAI.Models.User>
+@model IReadOnlyList<KitchenAidAI.Models.DTOs.UserDto>
 
 @{
-    var isAdmin = ViewBag.IsAdmin as bool? ?? string.Equals(Context.Session.GetString("IsAdmin"), "true", StringComparison.OrdinalIgnoreCase);
+    var isAdmin = ViewBag.IsAdmin as bool? ?? Context.User.IsInRole("Admin");
 }
 
 @if (Model is null || !Model.Any())
@@ -48,6 +48,7 @@ else
                             <td class="text-end y2k-col-actions">
                                 <div class="y2k-actions">
                                     <a class="btn btn-sm btn-primary" asp-controller="Korisnici" asp-action="Details" asp-route-id="@user.id">Pregled</a>
+                                    <a class="btn btn-sm btn-secondary" asp-controller="Datoteke" asp-action="Index" asp-route-userId="@user.id">Datoteke</a>
                                     <a class="btn btn-sm btn-info" asp-controller="Korisnici" asp-action="Edit" asp-route-id="@user.id">Uređivanje</a>
                                 @if (user.isDeleted)
                                 {
